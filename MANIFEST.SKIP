@@ -10,7 +10,6 @@
 \b_build/
 \bcover_db/
 \bblib/
-\binc/
 \.lwpcookies$
 \.last_cover_stats$
 \bnytprof.out$
