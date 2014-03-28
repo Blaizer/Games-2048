@@ -6,8 +6,8 @@ use Term::ANSIColor;
 use POSIX qw/floor ceil/;
 use List::Util qw/max min/;
 
-has grid         => is => 'lazy';
-has size         => is => 'ro', default => 4;
+extends 'Games::2048::Grid';
+
 has start_tiles  => is => 'ro', default => 2;
 has score        => is => 'rw', default => 0;
 has needs_redraw => is => 'rw', default => 1;
@@ -24,11 +24,6 @@ use constant {
 	CELL_WIDTH => 7,
 	CELL_HEIGHT => 3,
 };
-
-sub _build_grid {
-	my $self = shift;
-	Games::2048::Grid->new(size => $self->size);
-}
 
 sub each_vector {
 	(
@@ -86,21 +81,21 @@ sub run {
 
 sub insert_random_tile {
 	my $self = shift;
-	my @available_cells = $self->grid->available_cells;
+	my @available_cells = $self->available_cells;
 	return if !@available_cells;
 	my $cell = $available_cells[rand @available_cells];
 	my $value = rand() < 0.9 ? 2 : 4;
 	my $tile = Games::2048::Tile->new(value => $value);
-	$self->grid->set_tile($cell, $tile);
+	$self->set_tile($cell, $tile);
 }
 
 sub move {
 	my ($self, $vec) = @_;
 	my $moved = 0;
 
-	for my $cell ($vec->[0] > 0 || $vec->[1] > 0 ? reverse $self->grid->each_cell : $self->grid->each_cell) {
+	for my $cell ($vec->[0] > 0 || $vec->[1] > 0 ? reverse $self->each_cell : $self->each_cell) {
 		die if !ref $cell;
-		my $tile = $self->grid->tile($cell);
+		my $tile = $self->tile($cell);
 		next if !$tile;
 
 		my $next = $cell;
@@ -108,20 +103,20 @@ sub move {
 		do {
 			$farthest = $next;
 			$next = [ map $next->[$_] + $vec->[$_], 0..1 ];
-		} while ($self->grid->within_bounds($next)
-		    and !$self->grid->tile($next));
+		} while ($self->within_bounds($next)
+		    and !$self->tile($next));
 
-		my $next_tile = $self->grid->tile($next);
+		my $next_tile = $self->tile($next);
 		if ($next_tile and !$next_tile->merged and $next_tile->value == $tile->value) {
 			$next_tile->value($next_tile->value + $tile->value);
-			$self->grid->clear_tile($cell);
+			$self->clear_tile($cell);
 			$moved = 1;
 		}
 		else {
-			my $farthest_tile = $self->grid->tile($farthest);
+			my $farthest_tile = $self->tile($farthest);
 			if (!$farthest_tile) {
-				$self->grid->clear_tile($cell);
-				$self->grid->set_tile($farthest, $tile);
+				$self->clear_tile($cell);
+				$self->set_tile($farthest, $tile);
 				$moved = 1;
 			}
 		}
@@ -143,7 +138,7 @@ sub draw {
 			$self->draw_border_vertical;
 
 			for my $x (0..$self->size-1) {
-				my $tile = $self->grid->tile([$x, $y]);
+				my $tile = $self->tile([$x, $y]);
 
 				if (defined $tile) {
 					my $value = $tile->value;
