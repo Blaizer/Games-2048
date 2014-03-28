@@ -5,7 +5,7 @@ Games::2048 - Clone of a clone of the 2048 game
 =head1 SYNOPSIS
 
  use Games::2048;
- Games::2048->new->run_game;
+ Games::2048->new->run;
 
 =head1 AUTHOR
 
