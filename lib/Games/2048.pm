@@ -28,9 +28,6 @@ use Moo;
 
 our $VERSION = '0.01';
 
-use Term::ReadKey;
-use Term::ANSIColor;
-
 use Games::2048::Input;
 use Games::2048::Tile;
 use Games::2048::Grid;
