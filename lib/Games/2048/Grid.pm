@@ -10,6 +10,14 @@ sub _build_cells {
 	[ map [ (undef) x $self->size ], 1..$self->size ];
 }
 
+sub clear {
+	my $self = shift;
+	for ($self->each_cell) {
+		my ($x, $y) = @$_;
+		$self->cells->[$y][$x] = undef;
+	}
+}
+
 sub each_cell {
 	my $self = shift;
 	map {
