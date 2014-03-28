@@ -108,7 +108,9 @@ sub move {
 
 		my $next_tile = $self->tile($next);
 		if ($next_tile and !$next_tile->merged and $next_tile->value == $tile->value) {
-			$next_tile->value($next_tile->value + $tile->value);
+			my $value = $next_tile->value + $tile->value;
+			$self->score($self->score + $value);
+			$next_tile->value($value);
 			$self->clear_tile($cell);
 			$moved = 1;
 		}
