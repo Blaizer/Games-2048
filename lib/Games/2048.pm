@@ -12,4 +12,7 @@ Games::2048 - The great new Games::2048!
 
 our $VERSION = '0.01';
 
+use Games::2048::Grid;
+use Games::2048::Tile;
+
 1;
