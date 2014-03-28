@@ -5,7 +5,7 @@ Games::2048 - Clone of a clone of the 2048 game
 =head1 SYNOPSIS
 
  use Games::2048;
- Games::2048->new->run;
+ Games::2048->new->run_game;
 
 =head1 AUTHOR
 
@@ -28,11 +28,47 @@ use Moo;
 
 our $VERSION = '0.01';
 
-use Games::2048::Grid;
+use Term::ReadKey;
+use Term::ANSIColor;
+
+use Games::2048::Input;
 use Games::2048::Tile;
+use Games::2048::Grid;
+use Games::2048::Game;
+
+has size        => is => 'ro', default => 4;
+has start_tiles => is => 'ro', default => 2;
 
 sub run {
+	my $self = shift;
+	say "2048";
+	say "Join the numbers and get to the 2048 tile!";
+	say "HOW TO PLAY: Use your arrow keys to move the tiles. When two tiles with the\nsame number touch, they merge into one!";
+	say "";
 
+	my $quit = 0;
+	while (!$quit) {
+		my $game = Games::2048::Game->new(size => $self->size, start_tiles => $self->start_tiles);
+		$game->run;
+
+		print "Play again? (Y/n) ";
+		{
+			my $key = Games::2048::Input::poll_key;
+			if ($key =~ /^[ynq ]$/i) {
+				print $key;
+			}
+			if ($key =~ /^[nq\e\cC]$/i) {
+				$quit = 1;
+			}
+			elsif ($key =~ /^[y\r\n ]$/i) {
+				say "";
+			}
+			else {
+				redo;
+			}
+		}
+		say "";
+	}
 }
 
 1;
