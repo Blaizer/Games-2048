@@ -48,23 +48,27 @@ sub run {
 		my $game = Games::2048::Game->new(size => $self->size, start_tiles => $self->start_tiles);
 		$game->run;
 
-		print "Play again? (Y/n) ";
-		{
-			my $key = Games::2048::Input::poll_key;
-			if ($key =~ /^[ynq ]$/i) {
-				print $key;
+		$quit = $game->quit;
+
+		if (!$quit) {
+			print "Play again? (Y/n) ";
+			{
+				my $key = Games::2048::Input::poll_key;
+				if ($key =~ /^[ynq ]$/i) {
+					print $key;
+				}
+				if ($key =~ /^[nq\e\cC]$/i) {
+					$quit = 1;
+				}
+				elsif ($key =~ /^[y\r\n ]$/i) {
+					say "";
+				}
+				else {
+					redo;
+				}
 			}
-			if ($key =~ /^[nq\e\cC]$/i) {
-				$quit = 1;
-			}
-			elsif ($key =~ /^[y\r\n ]$/i) {
-				say "";
-			}
-			else {
-				redo;
-			}
+			say "";
 		}
-		say "";
 	}
 }
 

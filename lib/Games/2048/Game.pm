@@ -11,6 +11,7 @@ has size         => is => 'ro', default => 4;
 has start_tiles  => is => 'ro', default => 2;
 has score        => is => 'rw', default => 0;
 has needs_redraw => is => 'rw', default => 1;
+has quit         => is => 'rw', default => 0;
 
 use constant {
 	# colors
@@ -29,10 +30,58 @@ sub _build_grid {
 	Games::2048::Grid->new(size => $self->size);
 }
 
+sub each_vector {
+	(
+		[ 0, -1],
+		[ 0,  1],
+		[ 1,  0],
+		[-1,  0],
+	);
+}
+
+sub key_vector {
+	my ($self, $key) = @_;
+	state $vectors = [ $self->each_vector ];
+	state $keys    = [ map "\e[$_", "A".."D" ];
+	my $vector;
+	for (0..3) {
+		if ($key eq $keys->[$_]) {
+			$vector = $vectors->[$_];
+			last;
+		}
+	}
+	$vector;
+}
+
 sub run {
 	my $self = shift;
 	$self->insert_random_tile for 1..$self->start_tiles;
+
+	print "\e[s"; # save cursor position
 	$self->draw;
+
+	PLAY: while (1) {
+		while (defined(my $key = Games::2048::Input::read_key)) {
+			my $vec = $self->key_vector($key);
+			if ($vec) {
+				$self->move(@$vec);
+			}
+			elsif ($key =~ /^[q\e\cC]$/i) {
+				$self->quit(1);
+				last PLAY;
+			}
+			elsif ($key =~ /^[r]$/i) {
+				last PLAY;
+			}
+		}
+
+		if ($self->needs_redraw) {
+			print "\e[u"; # restore cursor position to start of drawing
+			$self->draw;
+		}
+
+		Games::2048::Input::delay;
+	}
 }
 
 sub insert_random_tile {
@@ -43,6 +92,11 @@ sub insert_random_tile {
 	my $value = rand() < 0.9 ? 2 : 4;
 	my $tile = Games::2048::Tile->new(value => $value);
 	$self->grid->cells->[$cell->[1]][$cell->[0]] = $tile;
+}
+
+sub move {
+	my ($self, $vec_x, $vec_y) = @_;
+
 }
 
 sub draw {
@@ -93,6 +147,8 @@ sub draw {
 	}
 
 	$self->draw_border_horizontal;
+
+	$self->needs_redraw(0);
 }
 
 sub tile_color {
