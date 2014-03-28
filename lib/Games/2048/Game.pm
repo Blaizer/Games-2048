@@ -57,14 +57,13 @@ sub run {
 	my $self = shift;
 	$self->insert_random_tile for 1..$self->start_tiles;
 
-	print "\e[s"; # save cursor position
 	$self->draw;
 
 	PLAY: while (1) {
 		while (defined(my $key = Games::2048::Input::read_key)) {
 			my $vec = $self->key_vector($key);
 			if ($vec) {
-				$self->move(@$vec);
+				$self->move($vec);
 			}
 			elsif ($key =~ /^[q\e\cC]$/i) {
 				$self->quit(1);
@@ -76,7 +75,8 @@ sub run {
 		}
 
 		if ($self->needs_redraw) {
-			print "\e[u"; # restore cursor position to start of drawing
+			# restore cursor position to start of drawing
+			printf "\e[%dA", CELL_HEIGHT * $self->size + BORDER_HEIGHT * 2;
 			$self->draw;
 		}
 
@@ -91,12 +91,46 @@ sub insert_random_tile {
 	my $cell = $available_cells[rand @available_cells];
 	my $value = rand() < 0.9 ? 2 : 4;
 	my $tile = Games::2048::Tile->new(value => $value);
-	$self->grid->cells->[$cell->[1]][$cell->[0]] = $tile;
+	$self->grid->set_tile($cell, $tile);
 }
 
 sub move {
-	my ($self, $vec_x, $vec_y) = @_;
+	my ($self, $vec) = @_;
+	my $moved = 0;
 
+	for my $cell ($vec->[0] > 0 || $vec->[1] > 0 ? reverse $self->grid->each_cell : $self->grid->each_cell) {
+		die if !ref $cell;
+		my $tile = $self->grid->tile($cell);
+		next if !$tile;
+
+		my $next = $cell;
+		my $farthest;
+		do {
+			$farthest = $next;
+			$next = [ map $next->[$_] + $vec->[$_], 0..1 ];
+		} while ($self->grid->within_bounds($next)
+		    and !$self->grid->tile($next));
+
+		my $next_tile = $self->grid->tile($next);
+		if ($next_tile and !$next_tile->merged and $next_tile->value == $tile->value) {
+			$next_tile->value($next_tile->value + $tile->value);
+			$self->grid->clear_tile($cell);
+			$moved = 1;
+		}
+		else {
+			my $farthest_tile = $self->grid->tile($farthest);
+			if (!$farthest_tile) {
+				$self->grid->clear_tile($cell);
+				$self->grid->set_tile($farthest, $tile);
+				$moved = 1;
+			}
+		}
+	}
+
+	if ($moved) {
+		$self->insert_random_tile;
+		$self->needs_redraw(1);
+	}
 }
 
 sub draw {
@@ -109,21 +143,21 @@ sub draw {
 			$self->draw_border_vertical;
 
 			for my $x (0..$self->size-1) {
-				my $tile = $self->grid->cells->[$y][$x];
+				my $tile = $self->grid->tile([$x, $y]);
 
 				if (defined $tile) {
 					my $value = $tile->value;
 					my $color = $self->tile_color($value);
 
 					my $lines = min(ceil(length($value) / CELL_WIDTH), CELL_HEIGHT);
-					my $first_line = floor(CELL_HEIGHT - $lines) / 2;
+					my $first_line = floor((CELL_HEIGHT - $lines) / 2);
 					my $this_line = $line - $first_line;
 
 					if ($this_line >= 0 and $this_line < $lines) {
 						my $cols = min(ceil(length($value) / $lines), CELL_WIDTH);
 						my $string_offset = $this_line * $cols;
 						my $string_length = min($cols, length($value) - $string_offset, CELL_WIDTH);
-						my $cell_offset = floor(CELL_WIDTH - $string_length) / 2;
+						my $cell_offset = floor((CELL_WIDTH - $string_length) / 2);
 
 						$self->draw_tile($cell_offset, $color);
 

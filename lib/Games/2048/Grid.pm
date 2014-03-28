@@ -42,9 +42,27 @@ sub has_available_cells {
 }
 
 sub within_bounds {
-	my ($self, $x, $y) = @_;
-	$x >= 0 and $x < $self->size and
-	$y >= 0 and $y < $self->size;
+	my ($self, $cell) = @_;
+	$cell->[0] >= 0 and $cell->[0] < $self->size and
+	$cell->[1] >= 0 and $cell->[1] < $self->size;
+}
+
+sub tile {
+	my ($self, $cell) = @_;
+	return if !$self->within_bounds($cell);
+	$self->cells->[$cell->[1]][$cell->[0]];
+}
+
+sub clear_tile {
+	my ($self, $cell) = @_;
+	return if !$self->within_bounds($cell);
+	$self->cells->[$cell->[1]][$cell->[0]] = undef;
+}
+
+sub set_tile {
+	my ($self, $cell, $tile) = @_;
+	return if !$self->within_bounds($cell);
+	$self->cells->[$cell->[1]][$cell->[0]] = $tile;
 }
 
 sub _cell_info {
