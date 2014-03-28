@@ -1,9 +1,3 @@
-package Games::2048;
-
-use 5.01;
-use strict;
-use warnings;
-
 =head1 NAME
 
 Games::2048 - Clone of a clone of the 2048 game
@@ -28,9 +22,17 @@ See L<http://dev.perl.org/licenses/> for more information.
 
 =cut
 
+package Games::2048;
+use 5.01;
+use Moo;
+
 our $VERSION = '0.01';
 
 use Games::2048::Grid;
 use Games::2048::Tile;
+
+sub run {
+
+}
 
 1;
