@@ -28,6 +28,10 @@ use Moo;
 
 our $VERSION = '0.01';
 
+use Storable;
+use File::ShareDir;
+use File::Spec::Functions;
+
 use Games::2048::Input;
 use Games::2048::Tile;
 use Games::2048::Grid;
@@ -45,12 +49,27 @@ sub run {
 	say "";
 
 	my $quit = 0;
+	my $game;
+	my $first_time = 1;
+
 	while (!$quit) {
-		my $game = Games::2048::Game->new(
-			size => $self->size,
-			start_tiles => $self->start_tiles,
-			best_score => $self->best_score,
-		);
+		if ($first_time) {
+			$first_time = 0;
+			$game = $self->restore_game;
+			$self->best_score($game->best_score);
+			undef $game if $game->lose;
+		}
+		else {
+			undef $game;
+		}
+		if (!$game) {
+			$game = Games::2048::Game->new(
+				size => $self->size,
+				best_score => $self->best_score,
+			);
+
+			$game->insert_random_tile for 1..$self->start_tiles;
+		}
 
 		RUN: $game->run;
 
@@ -81,12 +100,31 @@ sub run {
 			say "";
 			$game->restart(0);
 		}
-		if ($game->win and !$quit) {
-			$game->keep_playing(1);
+		if ($game->win) {
 			$game->win(0);
-			goto RUN;
+			goto RUN if !$quit;
 		}
 	}
+
+	$game->quit(0);
+	$self->save_game($game);
+}
+
+sub save_game {
+	my ($self, $game) = @_;
+	eval { store($game, $self->game_file); 1 } or warn $@;
+}
+
+sub restore_game {
+	my $self = shift;
+	my $game = eval { retrieve $self->game_file };
+}
+
+sub game_file {
+	my $self = shift;
+	my $dir = eval { File::ShareDir::dist_dir("Games-2048") };
+	return if !defined $dir;
+	return scalar catfile $dir, "game.dat";
 }
 
 1;

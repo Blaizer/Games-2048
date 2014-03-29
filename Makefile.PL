@@ -28,8 +28,9 @@ test_requires (
 );
 
 requires (
-	'Term::ReadKey' => 0,
-	'Moo'           => 0,
+	'Term::ReadKey'  => 0,
+	'Moo'            => 0,
+	'File::ShareDir' => 0,
 );
 
 install_as_cpan;

@@ -4,17 +4,15 @@ use Moo;
 
 extends 'Games::2048::Board';
 
-has start_tiles  => is => 'ro', default => 2;
 has moved        => is => 'rw', default => 0;
 has quit         => is => 'rw', default => 0;
 has win          => is => 'rw', default => 0;
+has won          => is => 'rw', default => 0;
 has lose         => is => 'rw', default => 0;
-has keep_playing => is => 'rw', default => 0;
 has restart      => is => 'rw', default => 0;
 
 sub run {
 	my $self = shift;
-	$self->insert_random_tile for 1..$self->start_tiles;
 
 	$self->draw;
 
@@ -88,7 +86,10 @@ sub move {
 			$self->clear_tile($cell);
 			$self->score($self->score + $value);
 			$self->best_score($self->score) if $self->score > $self->best_score;
-			$self->win(1) if $value >= 2048 and !$self->keep_playing;
+			if ($value >= 2048 and !$self->won) {
+				$self->win(1);
+				$self->won(1);
+			}
 			$self->moved(1);
 		}
 		else {
