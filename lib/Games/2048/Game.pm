@@ -97,6 +97,7 @@ sub move {
 		die if !ref $cell;
 		my $tile = $self->tile($cell);
 		next if !$tile;
+		$tile->merged(0); # allow tiles to merge into this one
 
 		my $next = $cell;
 		my $farthest;
@@ -109,9 +110,10 @@ sub move {
 		my $next_tile = $self->tile($next);
 		if ($next_tile and !$next_tile->merged and $next_tile->value == $tile->value) {
 			my $value = $next_tile->value + $tile->value;
-			$self->score($self->score + $value);
 			$next_tile->value($value);
+			$next_tile->merged(1); # disallow merging into this tile
 			$self->clear_tile($cell);
+			$self->score($self->score + $value);
 			$moved = 1;
 		}
 		else {
