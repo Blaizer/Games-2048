@@ -19,11 +19,9 @@ resources (
 );
 
 configure_requires (
-	'Module::Install' => 0,
 );
 
 build_requires (
-
 );
 
 test_requires (
