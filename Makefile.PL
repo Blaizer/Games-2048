@@ -25,7 +25,6 @@ build_requires (
 );
 
 test_requires (
-	'Test::More' => 0,
 );
 
 requires (
