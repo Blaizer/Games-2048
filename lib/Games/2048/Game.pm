@@ -70,7 +70,6 @@ sub move {
 	my $moved = 0;
 
 	for my $cell ($vec->[0] > 0 || $vec->[1] > 0 ? reverse $self->each_cell : $self->each_cell) {
-		die if !ref $cell;
 		my $tile = $self->tile($cell);
 		next if !$tile;
 		$tile->merged(0); # allow tiles to merge into this one
@@ -84,6 +83,7 @@ sub move {
 		    and !$self->tile($next));
 
 		if ($self->cells_can_merge($cell, $next)) {
+			# merge
 			my $next_tile = $self->tile($next);
 			my $value = $next_tile->value + $tile->value;
 			$next_tile->value($value);
@@ -94,6 +94,7 @@ sub move {
 			$self->moved(1);
 		}
 		else {
+			# slide
 			my $farthest_tile = $self->tile($farthest);
 			if (!$farthest_tile) {
 				$self->clear_tile($cell);
