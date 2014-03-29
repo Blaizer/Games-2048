@@ -46,12 +46,12 @@ sub run {
 	my $quit = 0;
 	while (!$quit) {
 		my $game = Games::2048::Game->new(size => $self->size, start_tiles => $self->start_tiles);
-		$game->run;
+		RUN: $game->run;
 
 		$quit = $game->quit;
 
-		if (!$quit) {
-			print "Play again? (Y/n) ";
+		if (!$quit and !$game->restart) {
+			print $game->win ? "Keep playing?" : "Play again?", " (Y/n) ";
 			{
 				my $key = Games::2048::Input::poll_key;
 				if ($key =~ /^[ynq ]$/i) {
@@ -68,6 +68,16 @@ sub run {
 				}
 			}
 			say "";
+		}
+
+		if ($game->restart) {
+			say "";
+			$game->restart(0);
+		}
+		if ($game->win and !$quit) {
+			$game->keep_playing(1);
+			$game->win(0);
+			goto RUN;
 		}
 	}
 }

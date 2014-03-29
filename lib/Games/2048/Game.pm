@@ -10,8 +10,13 @@ extends 'Games::2048::Grid';
 
 has start_tiles  => is => 'ro', default => 2;
 has score        => is => 'rw', default => 0;
+has moved        => is => 'rw', default => 0;
 has needs_redraw => is => 'rw', default => 1;
 has quit         => is => 'rw', default => 0;
+has win          => is => 'rw', default => 0;
+has lose         => is => 'rw', default => 0;
+has keep_playing => is => 'rw', default => 0;
+has restart      => is => 'rw', default => 0;
 
 use constant {
 	# colors
@@ -65,14 +70,33 @@ sub run {
 				last PLAY;
 			}
 			elsif ($key =~ /^[r]$/i) {
+				$self->restart(1);
 				last PLAY;
+			}
+		}
+
+		if ($self->moved) {
+			$self->moved(0);
+			if (!$self->has_available_cells and !$self->has_available_merges) {
+				$self->lose(1);
 			}
 		}
 
 		if ($self->needs_redraw) {
 			# restore cursor position to start of drawing
-			printf "\e[%dA", CELL_HEIGHT * $self->size + BORDER_HEIGHT * 2;
+			printf "\e[%dA", $self->total_height;
 			$self->draw;
+		}
+
+		if ($self->lose or $self->win) {
+			my $message =
+				$self->win ? "You win!"
+				           : "Game over!";
+			my $offset = floor(($self->total_width - length($message)) / 2);
+
+			say " " x $offset, colored(uc $message, "bold"), "\n";
+
+			last PLAY;
 		}
 
 		Games::2048::Input::delay;
@@ -107,28 +131,46 @@ sub move {
 		} while ($self->within_bounds($next)
 		    and !$self->tile($next));
 
-		my $next_tile = $self->tile($next);
-		if ($next_tile and !$next_tile->merged and $next_tile->value == $tile->value) {
+		if ($self->cells_can_merge($cell, $next)) {
+			my $next_tile = $self->tile($next);
 			my $value = $next_tile->value + $tile->value;
 			$next_tile->value($value);
 			$next_tile->merged(1); # disallow merging into this tile
 			$self->clear_tile($cell);
 			$self->score($self->score + $value);
-			$moved = 1;
+			$self->win(1) if $value >= 2048 and !$self->keep_playing;
+			$self->moved(1);
 		}
 		else {
 			my $farthest_tile = $self->tile($farthest);
 			if (!$farthest_tile) {
 				$self->clear_tile($cell);
 				$self->set_tile($farthest, $tile);
-				$moved = 1;
+				$self->moved(1);
 			}
 		}
 	}
 
-	if ($moved) {
+	if ($self->moved) {
 		$self->insert_random_tile;
 		$self->needs_redraw(1);
+	}
+}
+
+sub cells_can_merge {
+	my ($self, $cell, $next) = @_;
+	my $tile = $self->tile($cell);
+	my $next_tile = $self->tile($next);
+	$tile and $next_tile and !$next_tile->merged and $next_tile->value == $tile->value;
+}
+
+sub has_available_merges {
+	my $self = shift;
+	for my $vec ([0, 1], [1, 0]) {
+		for my $cell ($self->each_cell) {
+			my $next = [ map $cell->[$_] + $vec->[$_], 0..1 ];
+			return 1 if $self->cells_can_merge($cell, $next);
+		}
 	}
 }
 
@@ -197,9 +239,19 @@ sub tile_color {
 	                 : "reverse bright_yellow";
 }
 
+sub total_width {
+	my $self = shift;
+	$self->size * CELL_WIDTH + BORDER_WIDTH * 2;
+}
+
+sub total_height {
+	my $self = shift;
+	$self->size * CELL_HEIGHT + BORDER_HEIGHT * 2;
+}
+
 sub draw_border_horizontal {
 	my $self = shift;
-	say colored(" " x ($self->size * CELL_WIDTH + BORDER_WIDTH * 2), BORDER_COLOR);
+	say colored(" " x $self->total_width, BORDER_COLOR);
 }
 sub draw_border_vertical {
 	print colored("  ", BORDER_COLOR)

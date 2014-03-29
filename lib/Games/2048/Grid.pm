@@ -55,13 +55,11 @@ sub tile {
 
 sub clear_tile {
 	my ($self, $cell) = @_;
-	return if !$self->within_bounds($cell);
 	$self->cells->[$cell->[1]][$cell->[0]] = undef;
 }
 
 sub set_tile {
 	my ($self, $cell, $tile) = @_;
-	return if !$self->within_bounds($cell);
 	$self->cells->[$cell->[1]][$cell->[0]] = $tile;
 }
 
