@@ -87,6 +87,7 @@ sub move {
 			$next_tile->merged(1); # disallow merging into this tile
 			$self->clear_tile($cell);
 			$self->score($self->score + $value);
+			$self->best_score($self->score) if $self->score > $self->best_score;
 			$self->win(1) if $value >= 2048 and !$self->keep_playing;
 			$self->moved(1);
 		}
