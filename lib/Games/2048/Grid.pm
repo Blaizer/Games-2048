@@ -10,28 +10,20 @@ sub _build_cells {
 	[ map [ (undef) x $self->size ], 1..$self->size ];
 }
 
-sub clear {
-	my $self = shift;
-	for ($self->each_cell) {
-		my ($x, $y) = @$_;
-		$self->cells->[$y][$x] = undef;
-	}
-}
-
 sub each_cell {
 	my $self = shift;
 	map {
 		my $y = $_;
-		map $self->_cell_info($_, $y), 0..$self->size-1;
+		map [$_, $y], 0..$self->size-1;
 	} 0..$self->size-1;
 }
 
 sub available_cells {
 	my $self = shift;
 	my @cells;
-	for ($self->each_cell) {
-		my ($x, $y, $tile) = @$_;
-		push @cells, $self->_cell_info($x, $y) if !$tile;
+	for my $cell ($self->each_cell) {
+		my $tile = $self->tile($cell);
+		push @cells, $cell if !$tile;
 	};
 	@cells;
 }
@@ -61,11 +53,6 @@ sub clear_tile {
 sub set_tile {
 	my ($self, $cell, $tile) = @_;
 	$self->cells->[$cell->[1]][$cell->[0]] = $tile;
-}
-
-sub _cell_info {
-	my ($self, $x, $y) = @_;
-	[ $x, $y, $self->cells->[$y][$x] ];
 }
 
 1;
