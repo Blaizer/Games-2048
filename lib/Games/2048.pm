@@ -35,6 +35,7 @@ use Games::2048::Game;
 
 has size        => is => 'ro', default => 4;
 has start_tiles => is => 'ro', default => 2;
+has best_score  => is => 'rw', default => 0;
 
 sub run {
 	my $self = shift;
@@ -45,11 +46,17 @@ sub run {
 
 	my $quit = 0;
 	while (!$quit) {
-		my $game = Games::2048::Game->new(size => $self->size, start_tiles => $self->start_tiles);
+		my $game = Games::2048::Game->new(
+			size => $self->size,
+			start_tiles => $self->start_tiles,
+			best_score => $self->best_score,
+		);
+
 		RUN: $game->run;
 
-		$quit = $game->quit;
+		$self->best_score($game->best_score) if $game->best_score > $self->best_score;
 
+		$quit = $game->quit;
 		if (!$quit and !$game->restart) {
 			print $game->win ? "Keep playing?" : "Play again?", " (Y/n) ";
 			{

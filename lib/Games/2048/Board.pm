@@ -117,13 +117,13 @@ sub tile_color {
 	my ($self, $value) = @_;
 	!defined $value  ? ""
 	: $value <= 2    ? "reverse cyan"
-	: $value <= 4    ? "reverse green"
-	: $value <= 8    ? "reverse yellow"
-	: $value <= 16   ? "reverse blue"
+	: $value <= 4    ? "reverse bright_blue"
+	: $value <= 8    ? "reverse blue"
+	: $value <= 16   ? "reverse green"
 	: $value <= 32   ? "reverse magenta"
-	: $value <= 64   ? "reverse red"
+	: $value <= 64   ? "reverse bright_red"
 	: $value <= 2048 ? "reverse yellow"
-	                 : "reverse bright_yellow";
+	                 : "reverse";
 }
 
 sub board_width {
