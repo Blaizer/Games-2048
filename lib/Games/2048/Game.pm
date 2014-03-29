@@ -36,7 +36,7 @@ sub run {
 
 		if ($self->moved) {
 			$self->moved(0);
-			if (!$self->has_available_cells and !$self->has_available_merges) {
+			if (!$self->has_moves_remaining) {
 				$self->lose(1);
 			}
 		}
@@ -69,11 +69,8 @@ sub move {
 	my ($self, $vec) = @_;
 	my $moved = 0;
 
-	for my $cell ($vec->[0] > 0 || $vec->[1] > 0 ? reverse $self->each_cell : $self->each_cell) {
+	for my $cell ($vec->[0] > 0 || $vec->[1] > 0 ? reverse $self->tile_cells : $self->tile_cells) {
 		my $tile = $self->tile($cell);
-		next if !$tile;
-		$tile->merged(0); # allow tiles to merge into this one
-
 		my $next = $cell;
 		my $farthest;
 		do {
@@ -106,6 +103,10 @@ sub move {
 
 	if ($self->moved) {
 		$self->insert_random_tile;
+
+		# reallow merging
+		$self->tile($_)->merged(0) for $self->tile_cells;
+
 		$self->needs_redraw(1);
 	}
 }
@@ -117,8 +118,9 @@ sub cells_can_merge {
 	$tile and $next_tile and !$next_tile->merged and $next_tile->value == $tile->value;
 }
 
-sub has_available_merges {
+sub has_moves_remaining {
 	my $self = shift;
+	return 1 if $self->has_available_cells;
 	for my $vec ([0, -1], [-1, 0]) {
 		for my $cell ($self->each_cell) {
 			my $next = [ map $cell->[$_] + $vec->[$_], 0..1 ];

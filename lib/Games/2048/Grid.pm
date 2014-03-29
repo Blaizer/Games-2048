@@ -18,14 +18,14 @@ sub each_cell {
 	} 0..$self->size-1;
 }
 
+sub tile_cells {
+	my $self = shift;
+	grep $self->tile($_), $self->each_cell;
+}
+
 sub available_cells {
 	my $self = shift;
-	my @cells;
-	for my $cell ($self->each_cell) {
-		my $tile = $self->tile($cell);
-		push @cells, $cell if !$tile;
-	};
-	@cells;
+	grep !$self->tile($_), $self->each_cell;
 }
 
 sub has_available_cells {
