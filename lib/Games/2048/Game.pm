@@ -12,20 +12,6 @@ has lose         => is => 'rw', default => 0;
 has keep_playing => is => 'rw', default => 0;
 has restart      => is => 'rw', default => 0;
 
-sub key_vector {
-	my ($self, $key) = @_;
-	state $vectors = [ [0, -1], [0, 1], [1, 0], [-1, 0] ];
-	state $keys    = [ map "\e[$_", "A".."D" ];
-	my $vector;
-	for (0..3) {
-		if ($key eq $keys->[$_]) {
-			$vector = $vectors->[$_];
-			last;
-		}
-	}
-	$vector;
-}
-
 sub run {
 	my $self = shift;
 	$self->insert_random_tile for 1..$self->start_tiles;
@@ -139,6 +125,20 @@ sub has_available_merges {
 		}
 	}
 	return;
+}
+
+sub key_vector {
+	my ($self, $key) = @_;
+	state $vectors = [ [0, -1], [0, 1], [1, 0], [-1, 0] ];
+	state $keys    = [ map "\e[$_", "A".."D" ];
+	my $vector;
+	for (0..3) {
+		if ($key eq $keys->[$_]) {
+			$vector = $vectors->[$_];
+			last;
+		}
+	}
+	$vector;
 }
 
 1;
