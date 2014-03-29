@@ -119,7 +119,7 @@ sub cells_can_merge {
 
 sub has_available_merges {
 	my $self = shift;
-	for my $vec ([0, 1], [1, 0]) {
+	for my $vec ([0, -1], [-1, 0]) {
 		for my $cell ($self->each_cell) {
 			my $next = [ map $cell->[$_] + $vec->[$_], 0..1 ];
 			return 1 if $self->cells_can_merge($cell, $next);
