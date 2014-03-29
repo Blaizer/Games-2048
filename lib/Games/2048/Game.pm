@@ -12,18 +12,9 @@ has lose         => is => 'rw', default => 0;
 has keep_playing => is => 'rw', default => 0;
 has restart      => is => 'rw', default => 0;
 
-sub each_vector {
-	(
-		[ 0, -1],
-		[ 0,  1],
-		[ 1,  0],
-		[-1,  0],
-	);
-}
-
 sub key_vector {
 	my ($self, $key) = @_;
-	state $vectors = [ $self->each_vector ];
+	state $vectors = [ [0, -1], [0, 1], [1, 0], [-1, 0] ];
 	state $keys    = [ map "\e[$_", "A".."D" ];
 	my $vector;
 	for (0..3) {
@@ -147,6 +138,7 @@ sub has_available_merges {
 			return 1 if $self->cells_can_merge($cell, $next);
 		}
 	}
+	return;
 }
 
 1;
