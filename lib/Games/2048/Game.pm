@@ -4,53 +4,11 @@ use Moo;
 
 extends 'Games::2048::Board';
 
-has moved        => is => 'rw', default => 0;
-has quit         => is => 'rw', default => 0;
-has win          => is => 'rw', default => 0;
-has won          => is => 'rw', default => 0;
-has lose         => is => 'rw', default => 0;
-has restart      => is => 'rw', default => 0;
+has won => is => 'rw', default => 0;
 
-sub run {
-	my $self = shift;
-
-	$self->draw;
-
-	PLAY: while (1) {
-		while (defined(my $key = Games::2048::Input::read_key)) {
-			my $vec = $self->key_vector($key);
-			if ($vec) {
-				$self->move($vec);
-			}
-			elsif ($key =~ /^[q\e\cC]$/i) {
-				$self->quit(1);
-				last PLAY;
-			}
-			elsif ($key =~ /^[r]$/i) {
-				$self->restart(1);
-				last PLAY;
-			}
-		}
-
-		if ($self->moved) {
-			$self->moved(0);
-			if (!$self->has_moves_remaining) {
-				$self->lose(1);
-			}
-		}
-
-		if ($self->needs_redraw) {
-			$self->restore_cursor;
-			$self->draw;
-		}
-
-		if ($self->lose or $self->win) {
-			$self->draw_win($self->win);
-			last PLAY;
-		}
-
-		Games::2048::Input::delay;
-	}
+sub insert_start_tiles {
+	my ($self, $start_tiles) = @_;
+	$self->insert_random_tile for 1..$start_tiles;
 }
 
 sub insert_random_tile {
@@ -65,7 +23,7 @@ sub insert_random_tile {
 
 sub move {
 	my ($self, $vec) = @_;
-	my $moved = 0;
+	my $moved;
 
 	for my $cell ($vec->[0] > 0 || $vec->[1] > 0 ? reverse $self->tile_cells : $self->tile_cells) {
 		my $tile = $self->tile($cell);
@@ -90,7 +48,7 @@ sub move {
 				$self->win(1);
 				$self->won(1);
 			}
-			$self->moved(1);
+			$moved = 1;
 		}
 		else {
 			# slide
@@ -98,16 +56,20 @@ sub move {
 			if (!$farthest_tile) {
 				$self->clear_tile($cell);
 				$self->set_tile($farthest, $tile);
-				$self->moved(1);
+				$moved = 1;
 			}
 		}
 	}
 
-	if ($self->moved) {
+	if ($moved) {
 		$self->insert_random_tile;
 
 		# reallow merging
 		$self->tile($_)->merged(0) for $self->tile_cells;
+
+		if (!$self->has_moves_remaining) {
+			$self->lose(1);
+		}
 
 		$self->needs_redraw(1);
 	}
@@ -130,20 +92,6 @@ sub has_moves_remaining {
 		}
 	}
 	return;
-}
-
-sub key_vector {
-	my ($self, $key) = @_;
-	state $vectors = [ [0, -1], [0, 1], [1, 0], [-1, 0] ];
-	state $keys    = [ map "\e[$_", "A".."D" ];
-	my $vector;
-	for (0..3) {
-		if ($key eq $keys->[$_]) {
-			$vector = $vectors->[$_];
-			last;
-		}
-	}
-	$vector;
 }
 
 1;

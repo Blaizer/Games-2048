@@ -6,7 +6,6 @@ use Term::ReadKey;
 use Time::HiRes;
 
 END {
-	say '';
 	ReadMode 0; # reset read mode on exit
 }
 
@@ -53,6 +52,20 @@ sub poll_key {
 		delay;
 	}
 	return $key;
+}
+
+sub key_vector {
+	my ($key) = @_;
+	state $vectors = [ [0, -1], [0, 1], [1, 0], [-1, 0] ];
+	state $keys    = [ map "\e[$_", "A".."D" ];
+	my $vector;
+	for (0..3) {
+		if ($key eq $keys->[$_]) {
+			$vector = $vectors->[$_];
+			last;
+		}
+	}
+	$vector;
 }
 
 1;

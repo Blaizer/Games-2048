@@ -11,6 +11,8 @@ extends 'Games::2048::Grid';
 has score        => is => 'rw', default => 0;
 has best_score   => is => 'rw', default => 0;
 has needs_redraw => is => 'rw', default => 1;
+has win          => is => 'rw', default => 0;
+has lose         => is => 'rw', default => 0;
 
 use constant {
 	# colors
@@ -27,7 +29,10 @@ use constant {
 };
 
 sub draw {
-	my $self = shift;
+	my ($self, $redraw) = @_;
+
+	return if $redraw and !$self->needs_redraw;
+	$self->restore_cursor if $redraw;
 
 	$self->draw_score;
 	$self->draw_border_horizontal;
@@ -76,14 +81,17 @@ sub draw {
 
 	$self->draw_border_horizontal;
 
+	$self->draw_win;
+
 	$self->needs_redraw(0);
 }
 
 sub draw_win {
-	my ($self, $win) = @_;
+	my $self = shift;
+	return if !$self->win and !$self->lose;
 	my $message =
-		$win ? "You win!"
-		     : "Game over!";
+		$self->win ? "You win!"
+		           : "Game over!";
 	my $offset = floor(($self->board_width - length($message)) / 2);
 
 	say " " x $offset, colored(uc $message, "bold"), "\n";

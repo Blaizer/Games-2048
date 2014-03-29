@@ -48,7 +48,7 @@ sub run {
 	say "HOW TO PLAY: Use your arrow keys to move the tiles. When two tiles with the\nsame number touch, they merge into one!";
 	say "";
 
-	my $quit = 0;
+	my $quit;
 	my $game;
 	my $first_time = 1;
 
@@ -68,15 +68,41 @@ sub run {
 				best_score => $self->best_score,
 			);
 
-			$game->insert_random_tile for 1..$self->start_tiles;
+			$game->insert_start_tiles($self->start_tiles);
 		}
 
-		RUN: $game->run;
+		my $restart;
+
+		RUN: $game->draw;
+
+		PLAY: while (1) {
+			while (defined(my $key = Games::2048::Input::read_key)) {
+				my $vec = Games::2048::Input::key_vector($key);
+				if ($vec) {
+					$game->move($vec);
+				}
+				elsif ($key =~ /^[q\e\cC]$/i) {
+					$quit = 1;
+					last PLAY;
+				}
+				elsif ($key =~ /^[r]$/i) {
+					$restart = 1;
+					last PLAY;
+				}
+			}
+
+			$game->draw(1);
+
+			if ($game->lose or $game->win) {
+				last PLAY;
+			}
+
+			Games::2048::Input::delay;
+		}
 
 		$self->best_score($game->best_score) if $game->best_score > $self->best_score;
 
-		$quit = $game->quit;
-		if (!$quit and !$game->restart) {
+		if (!$quit and !$restart) {
 			print $game->win ? "Keep playing?" : "Play again?", " (Y/n) ";
 			{
 				my $key = Games::2048::Input::poll_key;
@@ -93,20 +119,15 @@ sub run {
 					redo;
 				}
 			}
-			say "";
 		}
+		say "";
 
-		if ($game->restart) {
-			$game->restart(0);
-			say "";
-		}
 		if ($game->win) {
 			$game->win(0);
 			goto RUN if !$quit;
 		}
 	}
 
-	$game->quit(0);
 	$self->save_game($game);
 }
 
