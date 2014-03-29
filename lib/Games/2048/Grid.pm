@@ -2,10 +2,10 @@ package Games::2048::Grid;
 use 5.01;
 use Moo;
 
-has size  => is => 'ro', default => 4;
-has cells => is => 'lazy';
+has size   => is => 'ro', default => 4;
+has _tiles => is => 'lazy';
 
-sub _build_cells {
+sub _build__tiles {
 	my $self = shift;
 	[ map [ (undef) x $self->size ], 1..$self->size ];
 }
@@ -42,17 +42,17 @@ sub within_bounds {
 sub tile {
 	my ($self, $cell) = @_;
 	return if !$self->within_bounds($cell);
-	$self->cells->[$cell->[1]][$cell->[0]];
+	$self->_tiles->[$cell->[1]][$cell->[0]];
 }
 
 sub clear_tile {
 	my ($self, $cell) = @_;
-	$self->cells->[$cell->[1]][$cell->[0]] = undef;
+	$self->_tiles->[$cell->[1]][$cell->[0]] = undef;
 }
 
 sub set_tile {
 	my ($self, $cell, $tile) = @_;
-	$self->cells->[$cell->[1]][$cell->[0]] = $tile;
+	$self->_tiles->[$cell->[1]][$cell->[0]] = $tile;
 }
 
 1;
