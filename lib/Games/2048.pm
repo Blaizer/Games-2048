@@ -97,8 +97,8 @@ sub run {
 		}
 
 		if ($game->restart) {
-			say "";
 			$game->restart(0);
+			say "";
 		}
 		if ($game->win) {
 			$game->win(0);
