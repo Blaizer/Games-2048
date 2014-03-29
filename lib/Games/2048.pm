@@ -112,7 +112,7 @@ sub run {
 
 sub save_game {
 	my ($self, $game) = @_;
-	eval { store($game, $self->game_file); 1 } or warn $@;
+	eval { store($game, $self->game_file); 1 };
 }
 
 sub restore_game {
