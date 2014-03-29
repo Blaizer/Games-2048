@@ -32,6 +32,7 @@ test_requires (
 
 requires (
 	'Term::ReadKey' => 0,
+	'Moo'           => 0,
 );
 
 install_as_cpan;
