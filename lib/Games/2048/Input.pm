@@ -41,15 +41,11 @@ sub read_key {
 	return shift @keys;
 }
 
-sub delay {
-	Time::HiRes::sleep(1/100);
-}
-
 sub poll_key {
 	my $key;
 	while (!defined $key) {
 		$key = read_key;
-		delay;
+		Time::HiRes::sleep(1/60);
 	}
 	return $key;
 }

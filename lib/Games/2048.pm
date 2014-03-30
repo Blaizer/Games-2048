@@ -31,6 +31,7 @@ our $VERSION = '0.01';
 use Storable;
 use File::ShareDir;
 use File::Spec::Functions;
+use Time::HiRes;
 
 use Games::2048::Input;
 use Games::2048::Tile;
@@ -71,9 +72,11 @@ sub run {
 			$game->insert_start_tiles($self->start_tiles);
 		}
 
-		my $restart;
-
 		RUN: $game->draw;
+
+		my $restart;
+		my $frame_time = 1/60;
+		my $time = Time::HiRes::time;
 
 		PLAY: while (1) {
 			while (defined(my $key = Games::2048::Input::read_key)) {
@@ -97,7 +100,14 @@ sub run {
 				last PLAY;
 			}
 
-			Games::2048::Input::delay;
+			my $new_time = Time::HiRes::time;
+			my $delta_time = $new_time - $time;
+			my $delay = $frame_time - $delta_time;
+			$time = $new_time;
+			if ($delay > 0) {
+				Time::HiRes::sleep($delay);
+				$time += $delay;
+			}
 		}
 
 		$self->best_score($game->best_score) if $game->best_score > $self->best_score;
