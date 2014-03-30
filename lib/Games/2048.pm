@@ -36,6 +36,7 @@ use Time::HiRes;
 use Games::2048::Input;
 use Games::2048::Tile;
 use Games::2048::Grid;
+use Games::2048::Board;
 use Games::2048::Game;
 
 has size        => is => 'ro', default => 4;
