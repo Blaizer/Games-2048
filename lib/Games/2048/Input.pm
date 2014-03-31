@@ -2,6 +2,7 @@ package Games::2048::Input;
 use 5.01;
 use strictures;
 
+use Term::ANSIColor;
 use Term::ReadKey;
 use Time::HiRes;
 
@@ -11,6 +12,7 @@ END {
 
 ReadMode 4;           # Turn off controls keys
 STDOUT->autoflush(1); # So output shows straight away
+print color("reset"); # Just for safety
 
 sub read_key {
 	state @keys;
@@ -43,8 +45,9 @@ sub read_key {
 
 sub poll_key {
 	my $key;
-	while (!defined $key) {
+	while (1) {
 		$key = read_key;
+		last if defined $key;
 		Time::HiRes::sleep(Games::2048::FRAME_TIME);
 	}
 	return $key;
