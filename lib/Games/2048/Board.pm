@@ -32,9 +32,9 @@ sub insert_tile {
 	my ($self, $cell, $value) = @_;
 	my $tile = Games::2048::Tile->new(
 		value => $value,
-		appear => Games::2048::Animation->new(
-			duration => 0.3,
-		),
+		# appear => Games::2048::Animation->new(
+		# 	duration => 0.3,
+		# ),
 	);
 	$self->set_tile($cell, $tile);
 }
@@ -96,9 +96,6 @@ sub draw {
 						my $range = $final_value - $initial_value;
 						my $value = $appear * $range + $initial_value;
 
-						# say "NOOO" if $value > 1;
-						say "OH BALLS" if $appear > 1;
-
 						my $x_center = (CELL_WIDTH  - 1) / 2;
 						my $y_center = (CELL_HEIGHT - 1) / 2;
 
@@ -113,9 +110,6 @@ sub draw {
 
 							my $within = $x_distance <= $x_range
 							          && $y_distance <= $y_range;
-
-
-							        # say $x_distance, " ", $x_range;
 
 							if ($within xor $on) {
 								$on = $within;
