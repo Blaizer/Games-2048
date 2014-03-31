@@ -17,8 +17,7 @@ sub insert_random_tile {
 	return if !@available_cells;
 	my $cell = $available_cells[rand @available_cells];
 	my $value = rand() < 0.9 ? 2 : 4;
-	my $tile = Games::2048::Tile->new(value => $value);
-	$self->set_tile($cell, $tile);
+	$self->insert_tile($cell, $value);
 }
 
 sub move {
@@ -38,13 +37,11 @@ sub move {
 		if ($self->cells_can_merge($cell, $next)) {
 			# merge
 			my $next_tile = $self->tile($next);
-			my $value = $next_tile->value + $tile->value;
-			$next_tile->value($value);
-			$next_tile->merged(1); # disallow merging into this tile
+			$next_tile->merge($tile);
 			$self->clear_tile($cell);
-			$self->score($self->score + $value);
+			$self->score($self->score + $next_tile->value);
 			$self->best_score($self->score) if $self->score > $self->best_score;
-			if ($value >= 2048 and !$self->won) {
+			if ($next_tile->value >= 2048 and !$self->won) {
 				$self->win(1);
 				$self->won(1);
 			}

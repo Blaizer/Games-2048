@@ -33,7 +33,12 @@ use File::ShareDir;
 use File::Spec::Functions;
 use Time::HiRes;
 
+use constant {
+	FRAME_TIME => 1/60,
+};
+
 use Games::2048::Input;
+use Games::2048::Animation;
 use Games::2048::Tile;
 use Games::2048::Grid;
 use Games::2048::Board;
@@ -76,7 +81,6 @@ sub run {
 		RUN: $game->draw;
 
 		my $restart;
-		my $frame_time = 1/60;
 		my $time = Time::HiRes::time;
 
 		PLAY: while (1) {
@@ -103,7 +107,7 @@ sub run {
 
 			my $new_time = Time::HiRes::time;
 			my $delta_time = $new_time - $time;
-			my $delay = $frame_time - $delta_time;
+			my $delay = FRAME_TIME - $delta_time;
 			$time = $new_time;
 			if ($delay > 0) {
 				Time::HiRes::sleep($delay);

@@ -28,11 +28,23 @@ use constant {
 	SCORE_INNER_PADDING => 2,
 };
 
+sub insert_tile {
+	my ($self, $cell, $value) = @_;
+	my $tile = Games::2048::Tile->new(
+		value => $value,
+		appear => Games::2048::Animation->new(
+			duration => 0.3,
+		),
+	);
+	$self->set_tile($cell, $tile);
+}
+
 sub draw {
 	my ($self, $redraw) = @_;
 
 	return if $redraw and !$self->needs_redraw;
 	$self->restore_cursor if $redraw;
+	$self->needs_redraw(0);
 
 	$self->draw_score;
 	$self->draw_border_horizontal;
@@ -44,9 +56,12 @@ sub draw {
 			for my $x (0..$self->size-1) {
 				my $tile = $self->tile([$x, $y]);
 
+				my $string;
+				my $color;
+
 				if (defined $tile) {
 					my $value = $tile->value;
-					my $color = $self->tile_color($value);
+					$color = $self->tile_color($value);
 
 					my $lines = min(ceil(length($value) / CELL_WIDTH), CELL_HEIGHT);
 					my $first_line = floor((CELL_HEIGHT - $lines) / 2);
@@ -58,19 +73,73 @@ sub draw {
 						my $string_length = min($cols, length($value) - $string_offset, CELL_WIDTH);
 						my $cell_offset = floor((CELL_WIDTH - $string_length) / 2);
 
-						$self->draw_tile($cell_offset, $color);
+						$string = " " x $cell_offset;
 
-						my $string = substr($value, $string_offset, $string_length);
-						print colored($string, $color);
+						$string .= substr($value, $string_offset, $string_length);
 
-						$self->draw_tile(CELL_WIDTH - $cell_offset - $string_length, $color);
+						$string .= " " x (CELL_WIDTH - $cell_offset - $string_length);
 					}
 					else {
-						$self->draw_tile(CELL_WIDTH, $color);
+						$string = " " x CELL_WIDTH;
 					}
+
+					my $appear;
+					if ($tile->appear) {
+						$appear = $tile->appear->value;
+						$tile->appear(undef) if !defined $appear;
+					}
+					if (defined $appear) {
+						$self->needs_redraw(1);
+
+						my $initial_value = -1 / max(CELL_WIDTH, CELL_HEIGHT);
+						my $final_value = 1;
+						my $range = $final_value - $initial_value;
+						my $value = $appear * $range + $initial_value;
+
+						# say "NOOO" if $value > 1;
+						say "OH BALLS" if $appear > 1;
+
+						my $x_center = (CELL_WIDTH  - 1) / 2;
+						my $y_center = (CELL_HEIGHT - 1) / 2;
+
+						my $x_range = $value * $x_center;
+						my $y_range = $value * $y_center;
+
+						my $on = 0;
+						my $extra = 0;
+						for my $col (0..CELL_WIDTH-1) {
+							my $x_distance = abs($col  - $x_center);
+							my $y_distance = abs($line - $y_center);
+
+							my $within = $x_distance <= $x_range
+							          && $y_distance <= $y_range;
+
+
+							        # say $x_distance, " ", $x_range;
+
+							if ($within xor $on) {
+								$on = $within;
+
+								my $insert = $on
+									? color($color)
+									: color("reset");
+
+								substr($string, $col + $extra, 0) = $insert;
+								$extra += length($insert);
+							}
+						}
+						if ($on) {
+							$string .= color("reset");
+						}
+					}
+					else {
+						$string = colored($string, $color);
+					}
+
+					print $string;
 				}
 				else {
-					$self->draw_tile(CELL_WIDTH);
+					print " " x CELL_WIDTH;
 				}
 			}
 
@@ -82,8 +151,6 @@ sub draw {
 	$self->draw_border_horizontal;
 
 	$self->draw_win;
-
-	$self->needs_redraw(0);
 }
 
 sub draw_win {
@@ -150,15 +217,6 @@ sub draw_border_horizontal {
 }
 sub draw_border_vertical {
 	print colored("  ", BORDER_COLOR)
-}
-
-sub draw_tile {
-	my ($self, $width, $color) = @_;
-	return if $width < 1;
-	my $string = " " x $width;
-	print $color
-		? colored($string, $color)
-		: $string;
 }
 
 sub restore_cursor {

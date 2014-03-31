@@ -45,7 +45,7 @@ sub poll_key {
 	my $key;
 	while (!defined $key) {
 		$key = read_key;
-		Time::HiRes::sleep(1/60);
+		Time::HiRes::sleep(Games::2048::FRAME_TIME);
 	}
 	return $key;
 }
