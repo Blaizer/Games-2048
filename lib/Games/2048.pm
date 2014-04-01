@@ -63,8 +63,10 @@ sub run {
 		if ($first_time) {
 			$first_time = 0;
 			$game = $self->restore_game;
-			$self->best_score($game->best_score);
-			undef $game if $game->lose;
+			if ($game) {
+				$self->best_score($game->best_score);
+				undef $game if $game->lose;
+			}
 		}
 		else {
 			undef $game;

@@ -2,6 +2,7 @@ package Games::2048::Input;
 use 5.01;
 use strictures;
 
+use if $^O eq "MSWin32", 'Win32::Console::ANSI';
 use Term::ANSIColor;
 use Term::ReadKey;
 use Time::HiRes;

@@ -184,15 +184,16 @@ sub draw_sub_score {
 
 sub tile_color {
 	my ($self, $value) = @_;
-	!defined $value  ? ""
-	: $value < 4     ? "reverse cyan"
-	: $value < 8     ? "reverse bright_blue"
-	: $value < 16    ? "reverse blue"
-	: $value < 32    ? "reverse green"
-	: $value < 64    ? "reverse magenta"
-	: $value < 128   ? "reverse bright_red"
-	: $value < 4096  ? "reverse yellow"
-	                 : "reverse";
+	!defined $value    ? ""
+	: $value < 4       ? "reverse cyan"
+	: $value < 8       ? "reverse bright_blue"
+	: $value < 16      ? "reverse blue"
+	: $value < 32      ? "reverse green"
+	: $value < 64      ? "reverse magenta"
+	: $value < 128     ? "reverse red"
+	: $value < 4096    ? "reverse yellow"
+	: $^O eq "MSWin32" ? "bold"
+	                   : "reverse bold";
 }
 
 sub board_width {

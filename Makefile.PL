@@ -30,7 +30,9 @@ test_requires (
 requires (
 	'Term::ReadKey'  => 0,
 	'Moo'            => 0,
+	'strictures'     => 0,
 	'File::ShareDir' => 0,
+	('Win32::Console::ANSI' => 0) x ($^O eq 'MSWin32'),
 );
 
 install_as_cpan;
