@@ -2,6 +2,7 @@ package Games::2048::Board;
 use 5.01;
 use Moo;
 
+use Text::Wrap;
 use Term::ANSIColor;
 use POSIX qw/floor ceil/;
 use List::Util qw/max min/;
@@ -217,6 +218,25 @@ sub draw_border_vertical {
 sub restore_cursor {
 	my $self = shift;
 	printf "\e[%dA", $self->board_height + 1;
+}
+
+sub draw_welcome {
+	local $Text::Wrap::columns = Games::2048::Input::window_size;
+
+	my $message = <<MESSAGE;
+2048 - Join the numbers and get to the 2048 tile!
+
+How to play: Use your arrow keys to move the tiles. When two tiles with the same number touch, they merge into one!
+Quit: ESC or Q
+New Game: R
+
+MESSAGE
+
+	$message = wrap "", "", $message;
+
+	$message =~ s/(^2048|How to play:|arrow keys|merge into one!|Quit:|New Game:)/colored $1, "bold"/ge;
+
+	say $message;
 }
 
 1;

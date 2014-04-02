@@ -15,6 +15,11 @@ ReadMode 4;           # Turn off controls keys
 STDOUT->autoflush(1); # So output shows straight away
 print color("reset"); # Just for safety
 
+# manual and automatic window size updating
+my $_window_size;
+$SIG{WINCH} = \&update_window_size;
+&update_window_size;
+
 sub read_key {
 	state @keys;
 
@@ -66,6 +71,15 @@ sub key_vector {
 		}
 	}
 	$vector;
+}
+
+sub update_window_size {
+	($_window_size) = GetTerminalSize *STDOUT;
+	$_window_size //= 80;
+}
+
+sub window_size {
+	$_window_size;
 }
 
 1;

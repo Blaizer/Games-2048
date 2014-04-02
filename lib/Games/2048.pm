@@ -50,10 +50,6 @@ has best_score  => is => 'rw', default => 0;
 
 sub run {
 	my $self = shift;
-	say "2048";
-	say "Join the numbers and get to the 2048 tile!";
-	say "HOW TO PLAY: Use your arrow keys to move the tiles. When two tiles with the\nsame number touch, they merge into one!";
-	say "";
 
 	my $quit;
 	my $game;
@@ -61,7 +57,6 @@ sub run {
 
 	while (!$quit) {
 		if ($first_time) {
-			$first_time = 0;
 			$game = $self->restore_game;
 			if ($game) {
 				$self->best_score($game->best_score);
@@ -78,6 +73,11 @@ sub run {
 			);
 
 			$game->insert_start_tiles($self->start_tiles);
+		}
+
+		if ($first_time) {
+			$first_time = 0;
+			$game->draw_welcome;
 		}
 
 		RUN: $game->draw;
