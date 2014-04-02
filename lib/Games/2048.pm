@@ -34,7 +34,7 @@ use File::Spec::Functions;
 use Time::HiRes;
 
 use constant {
-	FRAME_TIME => 1/60,
+	FRAME_TIME => 1/15,
 };
 
 use Games::2048::Input;
