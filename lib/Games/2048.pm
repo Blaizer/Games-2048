@@ -123,13 +123,13 @@ sub run {
 			print $game->win ? "Keep going?" : "Try again?", " (Y/n) ";
 			{
 				my $key = Games::2048::Input::poll_key;
-				if ($key =~ /^[ynq ]$/i) {
+				if ($key =~ /^[yn ]$/i) {
 					print $key;
 				}
 				if ($key =~ /^[nq\e\cC]$/i) {
 					$quit = 1;
 				}
-				elsif ($key =~ /^[y\r\n ]$/i) {
+				elsif ($key =~ /^[yr\r\n ]$/i) {
 					say "";
 				}
 				else {
