@@ -120,7 +120,7 @@ sub run {
 		$self->best_score($game->best_score) if $game->best_score > $self->best_score;
 
 		if (!$quit and !$restart) {
-			print $game->win ? "Keep playing?" : "Play again?", " (Y/n) ";
+			print $game->win ? "Keep going?" : "Try again?", " (Y/n) ";
 			{
 				my $key = Games::2048::Input::poll_key;
 				if ($key =~ /^[ynq ]$/i) {

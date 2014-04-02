@@ -32,9 +32,9 @@ sub insert_tile {
 	my ($self, $cell, $value) = @_;
 	my $tile = Games::2048::Tile->new(
 		value => $value,
-		appear => Games::2048::Animation->new(
-			duration => 0.4,
-		),
+		# appear => Games::2048::Animation->new(
+		# 	duration => 0.4,
+		# ),
 	);
 	$self->set_tile($cell, $tile);
 }
