@@ -117,6 +117,8 @@ sub run {
 			}
 		}
 
+		$game->draw_win;
+
 		$self->best_score($game->best_score) if $game->best_score > $self->best_score;
 
 		if (!$quit and !$restart) {

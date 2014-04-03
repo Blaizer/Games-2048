@@ -9,12 +9,11 @@ use List::Util qw/max min/;
 
 extends 'Games::2048::Grid';
 
-has score         => is => 'rw', default => 0;
-has best_score    => is => 'rw', default => 0;
-has needs_redraw  => is => 'rw', default => 1;
-has win           => is => 'rw', default => 0;
-has lose          => is => 'rw', default => 0;
-has _extra_height => is => 'rw', default => 0;
+has score        => is => 'rw', default => 0;
+has best_score   => is => 'rw', default => 0;
+has needs_redraw => is => 'rw', default => 1;
+has win          => is => 'rw', default => 0;
+has lose         => is => 'rw', default => 0;
 
 use constant {
 	# colors
@@ -140,13 +139,10 @@ sub draw {
 	}
 
 	$self->draw_border_horizontal;
-
-	$self->draw_win;
 }
 
 sub draw_win {
 	my $self = shift;
-	$self->_extra_height(0);
 	return if !$self->win and !$self->lose;
 	my $message =
 		$self->win ? "You win!"
@@ -154,7 +150,6 @@ sub draw_win {
 	my $offset = ceil(($self->board_width - length($message)) / 2);
 
 	say " " x $offset, colored(uc $message, "bold"), "\n";
-	$self->_extra_height(2);
 }
 
 sub draw_score {
@@ -202,7 +197,7 @@ sub board_width {
 
 sub board_height {
 	my $self = shift;
-	$self->size * CELL_HEIGHT + BORDER_HEIGHT * 2 + $self->_extra_height;
+	$self->size * CELL_HEIGHT + BORDER_HEIGHT * 2;
 }
 
 sub draw_border_horizontal {
