@@ -11,9 +11,7 @@ END {
 	ReadMode 0; # reset read mode on exit
 }
 
-ReadMode 4;           # Turn off controls keys
-STDOUT->autoflush(1); # So output shows straight away
-print color("reset"); # Just for safety
+ReadMode 4; # turn off control keys
 
 # manual and automatic window size updating
 my $_window_size;
