@@ -26,11 +26,11 @@ sub read_key {
 
 	my $char;
 	my $packet = '';
-	while (defined($char = ReadKey(-1))) {
+	while (defined($char = ReadKey -1)) {
 		$packet .= $char;
 	}
 
-	if ($packet =~ m(
+	while ($packet =~ m(
 		\G(
 			\e [[O]        # CSI - \e[ or \eO
 			[\x30-\x3f]*   # Parameter Bytes
