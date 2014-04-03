@@ -149,7 +149,7 @@ sub draw_win {
 	my $message =
 		$self->win ? "You win!"
 		           : "Game over!";
-	my $offset = floor(($self->board_width - length($message)) / 2);
+	my $offset = ceil(($self->board_width - length($message)) / 2);
 
 	say " " x $offset, colored(uc $message, "bold"), "\n";
 }
