@@ -1,15 +1,14 @@
-#!perl -T
-use 5.006;
-use strict;
-use warnings FATAL => 'all';
+use 5.010;
+use strictures;
 use Test::More;
 
-unless ( $ENV{RELEASE_TESTING} ) {
-    plan( skip_all => "Author tests not required for installation" );
+if (!$ENV{RELEASE_TESTING}) {
+    plan skip_all => "Author tests not required for installation";
 }
 
+# Ensure a recent version of Test::CheckManifest
 my $min_tcm = 0.9;
-eval "use Test::CheckManifest $min_tcm";
-plan skip_all => "Test::CheckManifest $min_tcm required" if $@;
+eval "use Test::CheckManifest $min_tcm"
+	or plan skip_all => "Test::CheckManifest $min_tcm required";
 
 ok_manifest();

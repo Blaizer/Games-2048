@@ -1,13 +1,11 @@
-#!perl -T
-use 5.006;
-use strict;
-use warnings FATAL => 'all';
+use 5.010;
+use strictures;
 use Test::More;
 
 plan tests => 1;
 
 BEGIN {
-    use_ok( 'Games::2048' ) || print "Bail out!\n";
+    use_ok "Games::2048" or BAIL_OUT "Couldn't use Games::2048";
 }
 
-diag( "Testing Games::2048 $Games::2048::VERSION, Perl $], $^X" );
+diag "Testing Games::2048 $Games::2048::VERSION, Perl $], $^X" ;
