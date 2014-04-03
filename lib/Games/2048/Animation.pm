@@ -10,11 +10,14 @@ has duration  => is => 'rw', default => 0;
 
 sub value {
 	my $self = shift;
-	my $cur_frame = $self->cur_frame;
-	my $frame_count = $self->frame_count;
-	return if $cur_frame >= $frame_count;
-	$self->cur_frame($cur_frame + 1);
-	return $cur_frame / ($frame_count - 1);
+	return $self->cur_frame / ($self->frame_count - 1);
+}
+
+sub update {
+	my $self = shift;
+	return if $self->cur_frame >= $self->frame_count;
+	$self->cur_frame($self->cur_frame + 1);
+	return 1;
 }
 
 sub frame_count {
