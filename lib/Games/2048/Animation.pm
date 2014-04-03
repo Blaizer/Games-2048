@@ -5,12 +5,16 @@ use Moo;
 use POSIX qw/floor ceil/;
 use Carp qw/croak/;
 
-has cur_frame => is => 'rw', default => 0;
-has duration  => is => 'rw', default => 0;
+has cur_frame   => is => 'rw', default => 0;
+has duration    => is => 'rw', default => 0;
+has first_value => is => 'rw', default => 0;
+has last_value  => is => 'rw', default => 1;
 
 sub value {
 	my $self = shift;
-	return $self->cur_frame / ($self->frame_count - 1);
+	my $value = $self->cur_frame / ($self->frame_count - 1);
+	my $range = $self->last_value - $self->first_value;
+	return $value * $range + $self->first_value;
 }
 
 sub update {

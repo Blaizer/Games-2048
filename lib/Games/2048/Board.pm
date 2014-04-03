@@ -35,6 +35,8 @@ sub insert_tile {
 		value => $value,
 		appear => Games::2048::Animation->new(
 			duration => 0.2,
+			first_value => -1 / max(CELL_WIDTH, CELL_HEIGHT),
+			last_value => 1,
 		),
 	);
 	$self->set_tile($cell, $tile);
@@ -88,15 +90,10 @@ sub draw {
 						# if any animation is going we need to keep redrawing
 						$self->needs_redraw(1);
 
-						my $appear = $tile->appear->value;
+						my $value = $tile->appear->value;
 						if ($line == CELL_HEIGHT-1) {
 							$tile->appear(undef) if !$tile->appear->update;
 						}
-
-						my $initial_value = -1 / max(CELL_WIDTH, CELL_HEIGHT);
-						my $final_value = 1;
-						my $range = $final_value - $initial_value;
-						my $value = $appear * $range + $initial_value;
 
 						my $x_center = (CELL_WIDTH  - 1) / 2;
 						my $y_center = (CELL_HEIGHT - 1) / 2;
