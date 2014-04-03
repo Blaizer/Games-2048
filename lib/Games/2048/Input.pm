@@ -50,10 +50,9 @@ sub poll_key {
 	my $key;
 	while (1) {
 		$key = read_key;
-		last if defined $key;
+		return $key if defined $key;
 		Time::HiRes::sleep(Games::2048::FRAME_TIME);
 	}
-	return $key;
 }
 
 sub key_vector {
