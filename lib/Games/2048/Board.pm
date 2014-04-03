@@ -98,17 +98,19 @@ sub draw {
 						my $x_center = (CELL_WIDTH  - 1) / 2;
 						my $y_center = (CELL_HEIGHT - 1) / 2;
 
-						my $x_radius = ($value * $x_center) ** 2;
-						my $y_radius = ($value * $y_center) ** 2;
-						my $radius = $x_radius + $y_radius;
+						my $x_radius = $x_center / CELL_WIDTH;
+						my $y_radius = $y_center / CELL_HEIGHT;
+
+						my $radius = $value * ($x_radius**2 + $y_radius**2);
 
 						my $on = 0;
 						my $extra = 0;
 						for my $col (0..CELL_WIDTH-1) {
-							my $x_distance = ($col  - $x_center) ** 2;
-							my $y_distance = ($line - $y_center) ** 2;
+							my $x_distance = ($col  - $x_center) / CELL_WIDTH;
+							my $y_distance = ($line - $y_center) / CELL_HEIGHT;
+							my $distance = $x_distance**2 + $y_distance**2;
 
-							my $within = $x_distance + $y_distance <= $radius;
+							my $within = $distance <= $radius;
 
 							if ($within xor $on) {
 								$on = $within;
