@@ -103,7 +103,7 @@ sub run {
 
 			$game->draw(1);
 
-			if ($game->lose or $game->win) {
+			if (!$game->needs_redraw and $game->lose || $game->win) {
 				last PLAY;
 			}
 
