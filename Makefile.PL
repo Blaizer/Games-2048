@@ -2,6 +2,7 @@ use 5.01;
 use strict;
 use warnings;
 use inc::Module::Install;
+use File::Spec::Functions;
 
 name     'Games-2048';
 all_from 'lib/Games/2048.pm';
@@ -33,6 +34,10 @@ requires (
 	'strictures'     => 0,
 	'File::ShareDir' => 0,
 	('Win32::Console::ANSI' => 0) x ($^O eq 'MSWin32'),
+);
+
+install_script (
+	'bin/2048',
 );
 
 install_as_cpan;
