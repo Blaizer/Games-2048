@@ -47,14 +47,11 @@ sub move {
 			}
 			$moved = 1;
 		}
-		else {
+		elsif (!$self->tile($farthest)) {
 			# slide
-			my $farthest_tile = $self->tile($farthest);
-			if (!$farthest_tile) {
-				$self->clear_tile($cell);
-				$self->set_tile($farthest, $tile);
-				$moved = 1;
-			}
+			$self->clear_tile($cell);
+			$self->set_tile($farthest, $tile);
+			$moved = 1;
 		}
 	}
 
