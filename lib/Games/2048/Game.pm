@@ -61,9 +61,6 @@ sub move {
 	if ($moved) {
 		$self->insert_random_tile;
 
-		# reallow merging
-		$self->tile($_)->merged(0) for $self->tile_cells;
-
 		if (!$self->has_moves_remaining) {
 			$self->lose(1);
 		}
@@ -76,6 +73,7 @@ sub cells_can_merge {
 	my ($self, $cell, $next) = @_;
 	my $tile = $self->tile($cell);
 	my $next_tile = $self->tile($next);
+	$tile->merged(0) if $tile;
 	$tile and $next_tile and !$next_tile->merged and $next_tile->value == $tile->value;
 }
 
