@@ -6,8 +6,8 @@ use Games::2048;
 my $grid = Games::2048::Grid->new(size => 2);
 my $big_grid = Games::2048::Grid->new;
 
-isa_ok $grid, "Games::2048::Grid", "big_grid";
-isa_ok $big_grid, "Games::2048::Grid", "grid";
+isa_ok $grid, "Games::2048::Grid", "grid";
+isa_ok $big_grid, "Games::2048::Grid", "big_grid";
 
 is $grid->size, 2, "set size in constructor";
 is $big_grid->size, 4, "default size";
