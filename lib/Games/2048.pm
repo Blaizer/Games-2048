@@ -92,7 +92,7 @@ sub run {
 					if ($vec) {
 						$game->move($vec);
 					}
-					elsif ($key =~ /^[q\e\cC]$/i) {
+					elsif ($key =~ /^[q\cC]$/i) {
 						$quit = 1;
 						last PLAY;
 					}
@@ -130,7 +130,7 @@ sub run {
 				if ($key =~ /^[yn ]$/i) {
 					print $key;
 				}
-				if ($key =~ /^[nq\e\cC]$/i) {
+				if ($key =~ /^[nq\cC]$/i) {
 					$quit = 1;
 				}
 				elsif ($key =~ /^[yr\r\n ]$/i) {

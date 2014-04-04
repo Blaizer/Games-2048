@@ -220,7 +220,7 @@ sub draw_welcome {
 2048 - Join the numbers and get to the 2048 tile!
 
 How to play: Use your arrow keys to move the tiles. When two tiles with the same number touch, they merge into one!
-Quit: ESC or Q
+Quit: Q
 New Game: R
 
 MESSAGE
