@@ -47,26 +47,22 @@ sub read_key {
 }
 
 sub poll_key {
-	my $key;
 	while (1) {
-		$key = read_key;
+		my $key = read_key;
 		return $key if defined $key;
 		Time::HiRes::sleep(Games::2048::FRAME_TIME);
 	}
+	return;
 }
 
 sub key_vector {
 	my ($key) = @_;
 	state $vectors = [ [0, -1], [0, 1], [1, 0], [-1, 0] ];
-	state $keys    = [ map "\e[$_", "A".."D" ];
-	my $vector;
+	state $keys = [ map "\e[$_", "A".."D" ];
 	for (0..3) {
-		if ($key eq $keys->[$_]) {
-			$vector = $vectors->[$_];
-			last;
-		}
+		return $vectors->[$_] if $key eq $keys->[$_];
 	}
-	$vector;
+	return;
 }
 
 sub update_window_size {
