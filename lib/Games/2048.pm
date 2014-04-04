@@ -86,18 +86,20 @@ sub run {
 		my $time = Time::HiRes::time;
 
 		PLAY: while (1) {
-			while (defined(my $key = Games::2048::Input::read_key)) {
-				my $vec = Games::2048::Input::key_vector($key);
-				if ($vec) {
-					$game->move($vec);
-				}
-				elsif ($key =~ /^[q\e\cC]$/i) {
-					$quit = 1;
-					last PLAY;
-				}
-				elsif ($key =~ /^[r]$/i) {
-					$restart = 1;
-					last PLAY;
+			if (!$game->lose and !$game->win) {
+				while (defined(my $key = Games::2048::Input::read_key)) {
+					my $vec = Games::2048::Input::key_vector($key);
+					if ($vec) {
+						$game->move($vec);
+					}
+					elsif ($key =~ /^[q\e\cC]$/i) {
+						$quit = 1;
+						last PLAY;
+					}
+					elsif ($key =~ /^[r]$/i) {
+						$restart = 1;
+						last PLAY;
+					}
 				}
 			}
 
