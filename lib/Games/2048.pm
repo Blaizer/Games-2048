@@ -166,7 +166,7 @@ sub game_file {
 	my $self = shift;
 	my $dir = eval { File::ShareDir::dist_dir("Games-2048") };
 	return if !defined $dir;
-	catfile $dir, "game.dat";
+	return catfile $dir, "game.dat";
 }
 
 1;

@@ -192,12 +192,12 @@ sub tile_color {
 
 sub board_width {
 	my $self = shift;
-	$self->size * CELL_WIDTH + BORDER_WIDTH * 2;
+	return $self->size * CELL_WIDTH + BORDER_WIDTH * 2;
 }
 
 sub board_height {
 	my $self = shift;
-	$self->size * CELL_HEIGHT + BORDER_HEIGHT * 2;
+	return $self->size * CELL_HEIGHT + BORDER_HEIGHT * 2;
 }
 
 sub draw_border_horizontal {
