@@ -8,7 +8,7 @@ if (!$ENV{RELEASE_TESTING}) {
 
 # Ensure a recent version of Test::CheckManifest
 my $min_tcm = 0.9;
-eval "use Test::CheckManifest $min_tcm"
+eval "use Test::CheckManifest $min_tcm; 1"
 	or plan skip_all => "Test::CheckManifest $min_tcm required";
 
 ok_manifest();
