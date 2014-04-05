@@ -14,7 +14,7 @@ ReadMode 4; # turn off control keys
 
 # manual and automatic window size updating
 my $_window_size;
-$SIG{WINCH} = \&update_window_size;
+eval { $SIG{WINCH} = \&update_window_size };
 &update_window_size;
 
 sub read_key {
