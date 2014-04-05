@@ -5,7 +5,6 @@ use inc::Module::Install;
 
 name     'Games-2048';
 all_from 'lib/Games/2048.pm';
-author   'Blaise Roth <blaizer@cpan.org>';
 license  'perl';
 
 perl_version 5.01;
@@ -40,7 +39,7 @@ requires (
 );
 
 install_script (
-	'bin/2048',
+	'2048',
 );
 
 install_as_cpan;
