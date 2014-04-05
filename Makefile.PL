@@ -18,7 +18,9 @@ resources (
 		url => 'git://github.com/Blaizer/Games-2048.git',
 		web => 'https://github.com/Blaizer/Games-2048',
 	},
-	bugtracker => 'https://github.com/Blaizer/Games-2048/issues',
+	bugtracker => {
+		url => 'https://github.com/Blaizer/Games-2048/issues',
+	},
 );
 
 configure_requires (
