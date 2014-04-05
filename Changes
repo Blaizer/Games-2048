@@ -1,8 +1,11 @@
 Revision history for Games-2048
 
-0.02    2014-04-05
-        First release, to test CPAN distribution.
+0.03 - 2014-05-05
+  - Second test release
+
+0.02 - 2014-04-05
+  - First release, to test CPAN distribution.
 
 0.01
-        First version, unreleased.
+  - First version, unreleased.
 
