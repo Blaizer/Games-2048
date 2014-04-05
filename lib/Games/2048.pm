@@ -1,11 +1,19 @@
 =head1 NAME
 
-Games::2048 - Clone of a clone of the 2048 game
+Games::2048 - An ASCII clone of the 2048 game
 
 =head1 SYNOPSIS
 
  use Games::2048;
  Games::2048->new->run;
+
+=head1 DESCRIPTION
+
+This module is a full clone of the L<2048 game by Gabriele Cirulli|http://gabrielecirulli.github.io/2048/>. It runs at the command-line, complete with controls identical to the original, a colourful interface, and even some text-based animations! It should work on Linux, Mac, and Windows.
+
+Once installed, run the game with the command:
+
+ 2048
 
 =head1 AUTHOR
 
