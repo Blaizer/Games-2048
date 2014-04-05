@@ -4,7 +4,6 @@ Build
 Build.bat
 MANIFEST
 MANIFEST.bak
-META.*
 MYMETA.*
 .build/
 _build/
@@ -16,5 +15,5 @@ nytprof.out
 pod2htm*.tmp
 pm_to_blib
 Games-2048-*
-Games-2048-*.tar.gz
 inc/
+META.*

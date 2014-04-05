@@ -4,7 +4,6 @@
 \bBuild.bat$
 \bMANIFEST\.SKIP$
 \bMANIFEST\.bak$
-\bMETA\.
 \bMYMETA\.
 \.build/
 \b_build/
@@ -16,5 +15,4 @@
 \bpod2htm.*\.tmp$
 \bpm_to_blib$
 \bGames-2048-
-\bGames-2048-.*\.tar\.gz
 \.git
