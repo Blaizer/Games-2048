@@ -20,7 +20,7 @@ sub insert_random_tile {
 	$self->insert_tile($cell, $value);
 }
 
-sub move {
+sub move_tiles {
 	my ($self, $vec) = @_;
 	my $moved;
 
@@ -55,14 +55,18 @@ sub move {
 		}
 	}
 
-	if ($moved) {
+	return $moved;
+}
+
+sub move {
+	my ($self, $vec) = @_;
+	if ($self->move_tiles($vec)) {
+		$self->needs_redraw(1);
 		$self->insert_random_tile;
 
 		if (!$self->has_moves_remaining) {
 			$self->lose(1);
 		}
-
-		$self->needs_redraw(1);
 	}
 }
 

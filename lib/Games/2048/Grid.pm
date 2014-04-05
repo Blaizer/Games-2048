@@ -18,6 +18,11 @@ sub each_cell {
 	} 0..$self->size-1;
 }
 
+sub each_tile {
+	my $self = shift;
+	map $self->tile($_), $self->each_cell;
+}
+
 sub tile_cells {
 	my $self = shift;
 	grep $self->tile($_), $self->each_cell;
