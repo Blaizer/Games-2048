@@ -34,7 +34,7 @@ package Games::2048;
 use 5.01;
 use Moo;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Storable;
 use File::ShareDir;
