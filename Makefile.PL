@@ -38,7 +38,7 @@ requires (
 	'strictures'     => 1.005,
 	'File::ShareDir' => 1.00,
 	('Win32::Console::ANSI' => 1.07) x ($^O eq 'MSWin32'),
-	'Color::ANSI::Util' => 0,
+	'Color::ANSI::Util' => 0.03,
 );
 
 install_script (
