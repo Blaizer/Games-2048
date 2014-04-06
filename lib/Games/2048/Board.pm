@@ -24,7 +24,7 @@ use constant {
 	CELL_WIDTH => 7,
 	CELL_HEIGHT => 3,
 
-	SCORE_INNER_PADDING => 2,
+	SCORE_WIDTH => 7,
 };
 
 sub insert_tile {
@@ -148,10 +148,10 @@ sub draw_score {
 	my ($self) = @_;
 
 	my $score = "Score:";
-	my $best_score = "Best score:";
+	my $best_score = "Best:";
 
 	my $blank_width = $self->board_width - length($score) - length($best_score);
-	my $score_width = floor(($blank_width - SCORE_INNER_PADDING) / 2);
+	my $score_width = min(floor(($blank_width - 1) / 2), SCORE_WIDTH);
 	my $inner_padding = $blank_width - $score_width * 2;
 
 	$self->draw_sub_score($score, $score_width, $self->score);
