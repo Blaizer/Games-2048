@@ -33,7 +33,7 @@ test_requires (
 );
 
 requires (
-	'Term::ReadKey'  => 2.30,
+	'Term::ReadKey'  => 2.31,
 	'Moo'            => 1.004,
 	'strictures'     => 1.005,
 	'File::ShareDir' => 1.00,
