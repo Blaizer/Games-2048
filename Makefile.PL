@@ -46,5 +46,4 @@ install_script (
 );
 
 install_as_cpan;
-auto_install;
 WriteAll;
