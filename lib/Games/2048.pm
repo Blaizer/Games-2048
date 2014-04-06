@@ -100,7 +100,7 @@ sub run {
 					if ($vec) {
 						$game->move($vec);
 					}
-					elsif ($key =~ /^[q\cC]$/i) {
+					elsif ($key =~ /^[q]$/i) {
 						$quit = 1;
 						last PLAY;
 					}
@@ -135,13 +135,13 @@ sub run {
 			print $game->win ? "Keep going?" : "Try again?", " (Y/n) ";
 			{
 				my $key = Games::2048::Input::poll_key;
-				if ($key =~ /^[yn ]$/i) {
+				if ($key =~ /^[yn]$/i) {
 					print $key;
 				}
-				if ($key =~ /^[nq\cC]$/i) {
+				if ($key =~ /^[nq]$/i) {
 					$quit = 1;
 				}
-				elsif ($key =~ /^[yr\r\n ]$/i) {
+				elsif ($key =~ /^[yr\n]$/i) {
 					say "";
 				}
 				else {
