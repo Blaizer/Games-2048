@@ -4,6 +4,7 @@ use Moo;
 
 use Text::Wrap;
 use Term::ANSIColor;
+use Color::ANSI::Util qw/ansifg ansibg/;
 use POSIX qw/floor ceil/;
 use List::Util qw/max min/;
 
@@ -111,7 +112,7 @@ sub draw {
 								$on = $within;
 
 								my $insert = $on
-									? color($color)
+									? $color =~ /\e/ ? $color : color($color)
 									: color("reset");
 
 								substr($string, $col + $extra, 0) = $insert;
@@ -123,7 +124,7 @@ sub draw {
 						}
 					}
 					else {
-						$string = colored($string, $color);
+						$string = $color =~ /\e/ ? $color.$string.color("reset") : colored($string, $color);
 					}
 
 					print $string;
@@ -178,16 +179,32 @@ sub draw_sub_score {
 
 sub tile_color {
 	my ($self, $value) = @_;
-	my $bright = $^O eq "MSWin32" ? "bold " : "bright_";
-	!defined $value    ? ""
-	: $value < 4       ? "reverse cyan"
-	: $value < 8       ? "reverse ${bright}blue"
-	: $value < 16      ? "reverse blue"
-	: $value < 32      ? "reverse green"
-	: $value < 64      ? "reverse magenta"
-	: $value < 128     ? "reverse red"
-	: $value < 4096    ? "reverse yellow"
-	                   : "reverse bold";
+        if ($ENV{KONSOLE_DBUS_SERVICE}) {
+		!defined $value    ? ansibg("776E65") . ansibg("CCC0B3")
+		: $value < 4       ? ansifg("776E65") . ansibg("EEE4DA")
+		: $value < 8       ? ansifg("776E65") . ansibg("EDE0C8")
+		: $value < 16      ? ansifg("F9F6F2") . ansibg("F2B179")
+		: $value < 32      ? ansifg("F9F6F2") . ansibg("F59563")
+		: $value < 64      ? ansifg("F9F6F2") . ansibg("F67C5F")
+		: $value < 128     ? ansifg("F9F6F2") . ansibg("F65E3B")
+		: $value < 256     ? ansifg("F9F6F2") . ansibg("EDCF72") . color("bold")
+		: $value < 512     ? ansifg("F9F6F2") . ansibg("EDCC61") . color("bold")
+		: $value < 1024    ? ansifg("F9F6F2") . ansibg("EDC850") . color("bold")
+		: $value < 2048    ? ansifg("F9F6F2") . ansibg("EDC53F") . color("bold")
+		: $value < 4096    ? ansifg("F9F6F2") . ansibg("EDC22E") . color("bold")
+		                   : ansifg("F9F6F2") . ansibg("EDC22E") . color("bold");
+	} else {
+		my $bright = $^O eq "MSWin32" ? "bold " : "bright_";
+		!defined $value    ? ""
+		: $value < 4       ? "reverse cyan"
+		: $value < 8       ? "reverse ${bright}blue"
+		: $value < 16      ? "reverse blue"
+		: $value < 32      ? "reverse green"
+		: $value < 64      ? "reverse magenta"
+		: $value < 128     ? "reverse red"
+		: $value < 4096    ? "reverse yellow"
+		                   : "reverse bold";
+	}
 }
 
 sub board_width {
