@@ -7,10 +7,10 @@ use Term::ReadKey;
 use Time::HiRes;
 
 END {
-	ReadMode 0; # reset read mode on exit
+	ReadMode 'normal';
 }
 
-ReadMode 4; # turn off control keys
+ReadMode 'cbreak';
 
 # manual and automatic window size updating
 my $_window_size;
