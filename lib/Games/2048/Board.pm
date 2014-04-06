@@ -17,9 +17,6 @@ has win          => is => 'rw', default => 0;
 has lose         => is => 'rw', default => 0;
 
 use constant {
-	# colors
-	BORDER_COLOR => "reverse",
-
 	# dimensions
 	BORDER_WIDTH => 2,
 	BORDER_HEIGHT => 1,
@@ -61,81 +58,75 @@ sub draw {
 				my $tile = $self->tile([$x, $y]);
 
 				my $string;
-				my $color;
+				my $value = $tile ? $tile->value : undef;
+				my $color = $self->tile_color($value);
+				my $bgcolor = $self->tile_color(undef);
 
-				if (defined $tile) {
-					my $value = $tile->value;
-					$color = $self->tile_color($value);
+				my $lines = min(ceil(length($value // '') / CELL_WIDTH), CELL_HEIGHT);
+				my $first_line = floor((CELL_HEIGHT - $lines) / 2);
+				my $this_line = $line - $first_line;
 
-					my $lines = min(ceil(length($value) / CELL_WIDTH), CELL_HEIGHT);
-					my $first_line = floor((CELL_HEIGHT - $lines) / 2);
-					my $this_line = $line - $first_line;
+				if ($this_line >= 0 and $this_line < $lines) {
+					my $cols = min(ceil(length($value) / $lines), CELL_WIDTH);
+					my $string_offset = $this_line * $cols;
+					my $string_length = min($cols, length($value) - $string_offset, CELL_WIDTH);
+					my $cell_offset = floor((CELL_WIDTH - $string_length) / 2);
 
-					if ($this_line >= 0 and $this_line < $lines) {
-						my $cols = min(ceil(length($value) / $lines), CELL_WIDTH);
-						my $string_offset = $this_line * $cols;
-						my $string_length = min($cols, length($value) - $string_offset, CELL_WIDTH);
-						my $cell_offset = floor((CELL_WIDTH - $string_length) / 2);
+					$string = " " x $cell_offset;
 
-						$string = " " x $cell_offset;
+					$string .= substr($value, $string_offset, $string_length);
 
-						$string .= substr($value, $string_offset, $string_length);
-
-						$string .= " " x (CELL_WIDTH - $cell_offset - $string_length);
-					}
-					else {
-						$string = " " x CELL_WIDTH;
-					}
-
-					if ($tile->appear) {
-						# if any animation is going we need to keep redrawing
-						$self->needs_redraw(1);
-
-						my $value = $tile->appear->value;
-						if ($line == CELL_HEIGHT-1) {
-							$tile->appear(undef) if !$tile->appear->update;
-						}
-
-						my $x_center = (CELL_WIDTH  - 1) / 2;
-						my $y_center = (CELL_HEIGHT - 1) / 2;
-
-						my $on = 0;
-						my $extra = 0;
-						for my $col (0..CELL_WIDTH-1) {
-							my $x_distance = $col  / $x_center - 1;
-							my $y_distance = $line / $y_center - 1;
-							my $distance = $x_distance**2 + $y_distance**2;
-
-							my $within = $distance <= 2 * $value**2;
-
-							if ($within xor $on) {
-								$on = $within;
-
-								my $insert = $on
-									? $color =~ /\e/ ? $color : color($color)
-									: color("reset");
-
-								substr($string, $col + $extra, 0) = $insert;
-								$extra += length($insert);
-							}
-						}
-						if ($on) {
-							$string .= color("reset");
-						}
-					}
-					else {
-						$string = $color =~ /\e/ ? $color.$string.color("reset") : colored($string, $color);
-					}
-
-					print $string;
+					$string .= " " x (CELL_WIDTH - $cell_offset - $string_length);
 				}
 				else {
-					print " " x CELL_WIDTH;
+					$string = " " x CELL_WIDTH;
 				}
+
+				if ($tile and $tile->appear) {
+					# if any animation is going we need to keep redrawing
+					$self->needs_redraw(1);
+
+					my $value = $tile->appear->value;
+					if ($line == CELL_HEIGHT-1) {
+						$tile->appear(undef) if !$tile->appear->update;
+					}
+
+					my $x_center = (CELL_WIDTH  - 1) / 2;
+					my $y_center = (CELL_HEIGHT - 1) / 2;
+
+					my $on = 0;
+					my $extra = 0;
+					for my $col (0..CELL_WIDTH-1) {
+						my $x_distance = $col  / $x_center - 1;
+						my $y_distance = $line / $y_center - 1;
+						my $distance = $x_distance**2 + $y_distance**2;
+
+						my $within = $distance <= 2 * $value**2;
+
+						if ($within xor $on) {
+							$on = $within;
+
+							my $insert = $on
+								? $color
+								: $bgcolor;
+
+							substr($string, $col + $extra, 0) = $insert;
+							$extra += length($insert);
+						}
+					}
+					if ($on) {
+						$string .= $bgcolor;
+					}
+				}
+				else {
+					$string = $color . $string . $bgcolor;
+				}
+
+				print $string;
 			}
 
 			$self->draw_border_vertical;
-			say "";
+			say color("reset");
 		}
 	}
 
@@ -179,8 +170,9 @@ sub draw_sub_score {
 
 sub tile_color {
 	my ($self, $value) = @_;
-        if ($ENV{KONSOLE_DBUS_SERVICE}) {
-		!defined $value    ? ansibg("776E65") . ansibg("CCC0B3")
+    if ($ENV{KONSOLE_DBUS_SERVICE}) {
+        return
+		!defined $value    ?                    ansibg("CCC0B3")
 		: $value < 4       ? ansifg("776E65") . ansibg("EEE4DA")
 		: $value < 8       ? ansifg("776E65") . ansibg("EDE0C8")
 		: $value < 16      ? ansifg("F9F6F2") . ansibg("F2B179")
@@ -192,10 +184,12 @@ sub tile_color {
 		: $value < 1024    ? ansifg("F9F6F2") . ansibg("EDC850") . color("bold")
 		: $value < 2048    ? ansifg("F9F6F2") . ansibg("EDC53F") . color("bold")
 		: $value < 4096    ? ansifg("F9F6F2") . ansibg("EDC22E") . color("bold")
-		                   : ansifg("F9F6F2") . ansibg("EDC22E") . color("bold");
-	} else {
+		                   : ansifg("F9F6F2") . ansibg("3C3A32") . color("bold");
+	}
+	else {
 		my $bright = $^O eq "MSWin32" ? "bold " : "bright_";
-		!defined $value    ? ""
+		my $color =
+		!defined $value    ? "reset"
 		: $value < 4       ? "reverse cyan"
 		: $value < 8       ? "reverse ${bright}blue"
 		: $value < 16      ? "reverse blue"
@@ -204,7 +198,14 @@ sub tile_color {
 		: $value < 128     ? "reverse red"
 		: $value < 4096    ? "reverse yellow"
 		                   : "reverse bold";
+		return $color ? color $color : $color;
 	}
+}
+
+sub border_color {
+	$ENV{KONSOLE_DBUS_SERVICE}
+		? ansibg("BBADA0")
+		: color("reverse");
 }
 
 sub board_width {
@@ -219,10 +220,11 @@ sub board_height {
 
 sub draw_border_horizontal {
 	my $self = shift;
-	say colored(" " x $self->board_width, BORDER_COLOR);
+	say $self->border_color, " " x $self->board_width, color("reset") for 1..BORDER_HEIGHT;
 }
 sub draw_border_vertical {
-	print colored("  ", BORDER_COLOR)
+	my $self = shift;
+	print $self->border_color, " " x BORDER_WIDTH, $self->tile_color(undef);
 }
 
 sub restore_cursor {
