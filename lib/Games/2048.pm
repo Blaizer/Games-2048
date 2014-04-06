@@ -61,8 +61,9 @@ sub run {
 	my $first_time = 1;
 
 	while (!$quit) {
-		if ($first_time and $game = $game = Games::2048::Game->restore) {
+		if ($first_time and $game = Games::2048::Game->restore) {
 			$self->update_best_score($game);
+			undef $game if $game->lose or !$game->is_valid;
 		}
 		else {
 			undef $game;
@@ -154,8 +155,11 @@ sub run {
 
 sub update_best_score {
 	my ($self, $game) = @_;
-	if ($game and defined $game->best_score and $game->best_score > $self->best_score) {
+	if (defined $game->best_score and $game->best_score > $self->best_score) {
 		$self->best_score($game->best_score);
+	}
+	else {
+		$game->best_score($self->best_score);
 	}
 }
 

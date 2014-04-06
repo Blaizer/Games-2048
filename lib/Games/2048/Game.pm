@@ -107,17 +107,17 @@ sub _game_file {
 sub save {
 	my $self = shift;
 	$self->version(__PACKAGE__->VERSION);
-	return eval { store($self, _game_file); 1 };
+	eval { store($self, _game_file); 1 };
 }
 
 sub restore {
 	my $self = eval { retrieve(_game_file) };
-	if (!$self or $self->lose
-		or !defined $self->version or $self->version < __PACKAGE__->VERSION
-	) {
-		return;
-	}
-	return $self;
+	$self;
+}
+
+sub is_valid {
+	my $self = shift;
+	defined $self->version and $self->version >= __PACKAGE__->VERSION;
 }
 
 1;

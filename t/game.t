@@ -13,7 +13,7 @@ isa_ok $small_game, "Games::2048::Grid", "small_game";
 isa_ok $big_game, "Games::2048::Grid", "big_game";
 
 ok $game->version, "Game version isn't 0";
-cmp_ok $game->version, ">=", Games::2048::Game->VERSION, "Game version OK";
+ok $game->is_valid, "Game is valid";
 
 sub create_game {
 	my %options = @_;
