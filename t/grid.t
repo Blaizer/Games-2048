@@ -6,15 +6,15 @@ use Games::2048;
 my $grid = Games::2048::Grid->new(size => 2);
 my $big_grid = Games::2048::Grid->new;
 
-plan skip_all => "Not written yet";
-
-__END__
-
 isa_ok $grid, "Games::2048::Grid", "grid";
 isa_ok $big_grid, "Games::2048::Grid", "big_grid";
 
 is $grid->size, 2, "set size in constructor";
 is $big_grid->size, 4, "default size";
+
+done_testing;
+
+__END__
 
 is scalar @{$grid->cells}, 2, "grid initialised rows";
 is scalar @{$grid->cells->[0]}, 2, "grid initialised col 0";

@@ -36,9 +36,6 @@ use Moo;
 
 our $VERSION = '0.04';
 
-use Storable;
-use File::ShareDir;
-use File::Spec::Functions;
 use Time::HiRes;
 
 use constant {
@@ -64,12 +61,8 @@ sub run {
 	my $first_time = 1;
 
 	while (!$quit) {
-		if ($first_time) {
-			$game = $self->restore_game;
-			if ($game) {
-				$self->best_score($game->best_score);
-				undef $game if $game->lose;
-			}
+		if ($first_time and $game = $game = Games::2048::Game->restore) {
+			$self->update_best_score($game);
 		}
 		else {
 			undef $game;
@@ -128,8 +121,7 @@ sub run {
 		}
 
 		$game->draw_win;
-
-		$self->best_score($game->best_score) if $game->best_score > $self->best_score;
+		$self->update_best_score($game);
 
 		if (!$quit and !$restart) {
 			print $game->win ? "Keep going?" : "Try again?", " (Y/n) ";
@@ -157,24 +149,14 @@ sub run {
 		}
 	}
 
-	$self->save_game($game);
+	$game->save;
 }
 
-sub save_game {
+sub update_best_score {
 	my ($self, $game) = @_;
-	eval { store($game, $self->game_file); 1 };
-}
-
-sub restore_game {
-	my $self = shift;
-	my $game = eval { retrieve $self->game_file };
-}
-
-sub game_file {
-	my $self = shift;
-	my $dir = eval { File::ShareDir::dist_dir("Games-2048") };
-	return if !defined $dir;
-	return catfile $dir, "game.dat";
+	if ($game and defined $game->best_score and $game->best_score > $self->best_score) {
+		$self->best_score($game->best_score);
+	}
 }
 
 1;
