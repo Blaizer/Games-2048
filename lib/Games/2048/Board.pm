@@ -44,6 +44,8 @@ sub draw {
 	my ($self, $redraw) = @_;
 
 	return if $redraw and !$self->needs_redraw;
+
+	$self->hide_cursor;
 	$self->restore_cursor if $redraw;
 	$self->needs_redraw(0);
 
@@ -131,6 +133,7 @@ sub draw {
 	}
 
 	$self->draw_border_horizontal;
+	$self->show_cursor;
 }
 
 sub draw_win {
@@ -247,6 +250,16 @@ MESSAGE
 	$message =~ s/(^2048|How to play:|arrow keys|merge into one!|Quit:|New Game:)/colored $1, "bold"/ge;
 
 	say $message;
+}
+
+sub hide_cursor {
+	my $self = shift;
+	print "\e[?25l";
+	eval 'END { $self->show_cursor }';
+}
+sub show_cursor {
+	my $self = shift;
+	print "\e[?25h";
 }
 
 1;
