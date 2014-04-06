@@ -133,7 +133,7 @@ sub draw {
 	}
 
 	$self->draw_border_horizontal;
-	$self->show_cursor;
+	$self->show_cursor if !$self->needs_redraw;
 }
 
 sub draw_win {
