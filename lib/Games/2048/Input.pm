@@ -6,11 +6,8 @@ use if $^O eq "MSWin32", "Win32::Console::ANSI";
 use Term::ReadKey;
 use Time::HiRes;
 
-END {
-	ReadMode 'normal';
-}
-
-ReadMode 'cbreak';
+eval 'END { ReadMode "normal" }';
+ReadMode "cbreak";
 
 # manual and automatic window size updating
 my $_window_size;

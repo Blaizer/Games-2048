@@ -254,8 +254,8 @@ MESSAGE
 
 sub hide_cursor {
 	my $self = shift;
-	print "\e[?25l";
 	eval 'END { $self->show_cursor }';
+	print "\e[?25l";
 }
 sub show_cursor {
 	my $self = shift;
