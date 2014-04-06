@@ -1,5 +1,5 @@
 package Games::2048::Input;
-use 5.01;
+use 5.012;
 use strictures;
 
 use if $^O eq "MSWin32", "Win32::Console::ANSI";

@@ -1,4 +1,4 @@
-use 5.01;
+use 5.012;
 use strict;
 use warnings;
 use inc::Module::Install;
@@ -7,7 +7,7 @@ name     'Games-2048';
 all_from 'lib/Games/2048.pm';
 license  'perl';
 
-perl_version 5.01;
+perl_version 5.012;
 
 resources (
 	# homepage   => 'http://yourwebsitehere.com',

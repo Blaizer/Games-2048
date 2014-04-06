@@ -1,5 +1,5 @@
 package Games::2048::Game;
-use 5.01;
+use 5.012;
 use Moo;
 
 extends 'Games::2048::Board';

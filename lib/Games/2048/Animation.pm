@@ -1,5 +1,5 @@
 package Games::2048::Animation;
-use 5.01;
+use 5.012;
 use Moo;
 
 use POSIX qw/floor ceil/;

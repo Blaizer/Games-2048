@@ -1,5 +1,5 @@
 package Games::2048::Grid;
-use 5.01;
+use 5.012;
 use Moo;
 
 has size   => is => 'ro', default => 4;

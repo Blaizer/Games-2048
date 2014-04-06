@@ -31,7 +31,7 @@ See L<http://dev.perl.org/licenses/> for more information.
 =cut
 
 package Games::2048;
-use 5.01;
+use 5.012;
 use Moo;
 
 our $VERSION = '0.03';

@@ -1,6 +1,5 @@
-use 5.01;
-use strict;
-use warnings;
+use 5.012;
+use strictures;
 use Test::More;
 use Games::2048;
 

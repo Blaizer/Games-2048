@@ -1,3 +1,4 @@
 #!/usr/bin/env perl
+use 5.012;
 use Games::2048;
 Games::2048->new->run;
