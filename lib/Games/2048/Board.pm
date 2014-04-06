@@ -186,9 +186,8 @@ sub tile_color {
 		: $value < 4096    ? ansifg("F9F6F2") . ansibg("EDC22E") . color("bold")
 		                   : ansifg("F9F6F2") . ansibg("3C3A32") . color("bold");
 	}
-	else {
-		my $bright = $^O eq "MSWin32" ? "bold " : "bright_";
-		my $color =
+	my $bright = $^O eq "MSWin32" ? "bold " : "bright_";
+	return color (
 		!defined $value    ? "reset"
 		: $value < 4       ? "reverse cyan"
 		: $value < 8       ? "reverse ${bright}blue"
@@ -197,9 +196,8 @@ sub tile_color {
 		: $value < 64      ? "reverse magenta"
 		: $value < 128     ? "reverse red"
 		: $value < 4096    ? "reverse yellow"
-		                   : "reverse bold";
-		return $color ? color $color : $color;
-	}
+		                   : "reverse bold"
+	);
 }
 
 sub border_color {
