@@ -172,7 +172,7 @@ sub tile_color {
 	my ($self, $value) = @_;
     if ($ENV{KONSOLE_DBUS_SERVICE}) {
         return
-		!defined $value    ?                    ansibg("CCC0B3")
+		!defined $value    ? ansifg("776E65") . ansibg("CCC0B3")
 		: $value < 4       ? ansifg("776E65") . ansibg("EEE4DA")
 		: $value < 8       ? ansifg("776E65") . ansibg("EDE0C8")
 		: $value < 16      ? ansifg("F9F6F2") . ansibg("F2B179")
@@ -202,7 +202,7 @@ sub tile_color {
 
 sub border_color {
 	$ENV{KONSOLE_DBUS_SERVICE}
-		? ansibg("BBADA0")
+		? ansifg("776E65") . ansibg("BBADA0")
 		: color("reverse");
 }
 
