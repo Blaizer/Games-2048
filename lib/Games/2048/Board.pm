@@ -4,7 +4,7 @@ use Moo;
 
 use Text::Wrap;
 use Term::ANSIColor;
-# use Color::ANSI::Util qw/ansifg ansibg/;
+use Color::ANSI::Util qw/ansifg ansibg/;
 use POSIX qw/floor ceil/;
 use List::Util qw/max min/;
 
