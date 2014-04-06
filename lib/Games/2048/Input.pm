@@ -66,7 +66,7 @@ sub key_vector {
 }
 
 sub update_window_size {
-	($_window_size) = GetTerminalSize *STDOUT;
+	($_window_size) = eval { GetTerminalSize *STDOUT };
 	$_window_size //= 80;
 }
 
