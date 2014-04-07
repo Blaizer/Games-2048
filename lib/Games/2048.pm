@@ -15,6 +15,24 @@ Once installed, run the game with the command:
 
  2048
 
+=head1 TODO
+
+=over
+
+=item * Add slide and merge animations
+
+=item * Add button to toggle animations on/off
+
+=item * Add buttons to zoom the board in and out
+
+=item * Add colors for 256-color terminals
+
+=item * Abstract input system to allow for AI or replay input
+
+=item * Test on more systems and terminals
+
+=back
+
 =head1 AUTHOR
 
 Blaise Roth <blaizer@cpan.org>
