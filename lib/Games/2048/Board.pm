@@ -22,6 +22,9 @@ has needs_redraw => is => 'rw', default => 1;
 has win          => is => 'rw', default => 0;
 has lose         => is => 'rw', default => 0;
 
+has moving     => is => 'rw';
+has moving_vec => is => 'rw';
+
 has border_width  => is => 'rw', default => 2;
 has border_height => is => 'rw', default => 1;
 has cell_width    => is => 'rw', default => 7;

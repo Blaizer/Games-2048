@@ -66,7 +66,7 @@ sub move_tiles {
 
 			$self->score($self->score + $merged_tile->value);
 			$self->best_score($self->score) if $self->score > $self->best_score;
-			if ($next_tile->value >= 2048 and !$self->won) {
+			if ($merged_tile->value >= 2048 and !$self->won) {
 				$self->win(1);
 				$self->won(1);
 			}
@@ -92,8 +92,13 @@ sub move_tiles {
 sub move {
 	my ($self, $vec) = @_;
 	if ($self->move_tiles($vec)) {
-		$self->needs_redraw(1);
 		$self->insert_random_tile;
+
+		$self->needs_redraw(1);
+		$self->moving_vec($vec);
+		$self->moving(Games::2048::Animation->new(
+			duration => 0.2,
+		));
 
 		if (!$self->has_moves_remaining) {
 			$self->lose(1);
