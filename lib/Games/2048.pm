@@ -77,6 +77,7 @@ sub run {
 	my $quit;
 	my $game;
 	my $first_time = 1;
+	Games::2048::Input::update_window_size;
 
 	while (!$quit) {
 		if ($first_time and $game = Games::2048::Game->restore) {

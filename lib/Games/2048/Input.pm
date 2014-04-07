@@ -12,7 +12,6 @@ ReadMode "cbreak";
 # manual and automatic window size updating
 my $_window_size;
 eval { $SIG{WINCH} = \&update_window_size };
-&update_window_size;
 
 sub read_key {
 	state @keys;
