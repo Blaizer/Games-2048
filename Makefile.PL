@@ -33,12 +33,12 @@ test_requires (
 );
 
 requires (
-	'Term::ReadKey'  => 2.31,
-	'Moo'            => 1.004,
-	'strictures'     => 1.005,
-	'File::ShareDir' => 1.00,
-	('Win32::Console::ANSI' => 1.07) x ($^O eq 'MSWin32'),
+	'Moo'               => 1.004,
+	'strictures'        => 1.005,
+	'Term::ReadKey'     => 2.31,
+	'File::HomeDir'     => 1.00,
 	'Color::ANSI::Util' => 0.03,
+	('Win32::Console::ANSI' => 1.07) x ($^O eq 'MSWin32'),
 );
 
 install_script (

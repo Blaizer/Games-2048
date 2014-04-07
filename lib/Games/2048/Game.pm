@@ -7,7 +7,7 @@ our $VERSION = '0.01';
 
 use Storable;
 use File::Spec::Functions;
-use File::ShareDir qw/dist_dir/;
+use File::HomeDir;
 
 extends 'Games::2048::Board';
 
@@ -99,9 +99,9 @@ sub has_moves_remaining {
 }
 
 sub _game_file {
-	my $dir = eval { dist_dir("Games-2048") };
-	return if !defined $dir;
-	return catfile $dir, "game.dat";
+	state $config_dir = eval { File::HomeDir->my_dist_config("Games-2048", {create => 1}) };
+	return if !defined $config_dir;
+	return catfile($config_dir, "game.dat");
 }
 
 sub save {
