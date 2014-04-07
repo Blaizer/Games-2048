@@ -4,9 +4,13 @@ use Moo;
 
 use Text::Wrap;
 use Term::ANSIColor;
-use Color::ANSI::Util qw/ansifg ansibg/;
 use POSIX qw/floor ceil/;
 use List::Util qw/max min/;
+BEGIN {
+	if (eval { require 'Color::ANSI::Util'; 1 }) {
+		Color::ANSI::Util->import(qw/ansifg ansibg/);
+	}
+}
 
 extends 'Games::2048::Grid';
 
@@ -173,7 +177,9 @@ sub draw_sub_score {
 
 sub tile_color {
 	my ($self, $value) = @_;
-    if ($ENV{KONSOLE_DBUS_SERVICE}) {
+	state $use_color_util = $ENV{KONSOLE_DBUS_SERVICE}
+		&& exists &ansifg && exists &ansibg;
+    if ($use_color_util) {
         return
 		!defined $value    ? ansifg("BBADA0") . ansibg("CCC0B3")
 		: $value < 4       ? ansifg("776E65") . ansibg("EEE4DA")
