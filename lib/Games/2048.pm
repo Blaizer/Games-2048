@@ -144,6 +144,7 @@ sub run {
 
 		if (!$quit and !$restart) {
 			print $game->win ? "Keep going?" : "Try again?", " (Y/n) ";
+			STDOUT->flush;
 			{
 				my $key = Games::2048::Input::poll_key;
 				if ($key =~ /^[yn]$/i) {
