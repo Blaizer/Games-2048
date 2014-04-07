@@ -3,7 +3,7 @@ use 5.012;
 use Moo;
 
 # increment this whenever we break compat with older game objects
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Storable;
 use File::Spec::Functions;
