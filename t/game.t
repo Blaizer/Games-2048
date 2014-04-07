@@ -33,7 +33,7 @@ sub create_game {
 sub tiles_are {
 	my ($got, $expected, $message) = @_;
 	for my $game ($got, $expected) {
-		$game = [ map { $_ && $_->value } $game->each_tile ];
+		$game = [ map $_->value, $game->each_tile ];
 	}
 	is_deeply $got, $expected, $message;
 }

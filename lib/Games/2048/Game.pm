@@ -32,7 +32,9 @@ sub move_tiles {
 	my ($self, $vec) = @_;
 	my $moved;
 
-	for my $cell ($vec->[0] > 0 || $vec->[1] > 0 ? reverse $self->tile_cells : $self->tile_cells) {
+	my $reverse = $vec->[0] > 0 || $vec->[1] > 0;
+
+	for my $cell (sort { $reverse } $self->tile_cells) {
 		my $tile = $self->tile($cell);
 		my $next = $cell;
 		my $farthest;
@@ -45,9 +47,24 @@ sub move_tiles {
 		if ($self->cells_can_merge($cell, $next)) {
 			# merge
 			my $next_tile = $self->tile($next);
-			$next_tile->merge($tile);
+
+			$tile->moving_from($cell);
+
+			$tile->merging_tiles(undef);
+			$tile->appear(undef);
+			$next_tile->merging_tiles(undef);
+			$next_tile->appear(undef);
+
+			my $merged_tile = Games::2048::Tile->new(
+				value => $tile->value + $next_tile->value,
+				merging_tiles => [ sort { $reverse } $tile, $next_tile ],
+				merged => 1,
+			);
+
 			$self->clear_tile($cell);
-			$self->score($self->score + $next_tile->value);
+			$self->set_tile($next, $merged_tile);
+
+			$self->score($self->score + $merged_tile->value);
 			$self->best_score($self->score) if $self->score > $self->best_score;
 			if ($next_tile->value >= 2048 and !$self->won) {
 				$self->win(1);
@@ -57,11 +74,17 @@ sub move_tiles {
 		}
 		elsif (!$self->tile($farthest)) {
 			# slide
+			$tile->moving_from($cell);
+			$tile->merging_tiles(undef);
+			$tile->appear(undef);
+
 			$self->clear_tile($cell);
 			$self->set_tile($farthest, $tile);
 			$moved = 1;
 		}
 	}
+
+	$_->merged(0) for $self->each_tile;
 
 	return $moved;
 }
@@ -82,7 +105,6 @@ sub cells_can_merge {
 	my ($self, $cell, $next) = @_;
 	my $tile = $self->tile($cell);
 	my $next_tile = $self->tile($next);
-	$tile->merged(0) if $tile;
 	$tile and $next_tile and !$next_tile->merged and $next_tile->value == $tile->value;
 }
 

@@ -20,7 +20,7 @@ sub each_cell {
 
 sub each_tile {
 	my $self = shift;
-	map $self->tile($_), $self->each_cell;
+	map $self->tile($_), $self->tile_cells;
 }
 
 sub tile_cells {
