@@ -99,8 +99,10 @@ sub has_moves_remaining {
 }
 
 sub _game_file {
-	state $my_dist_method = "my_dist_" . ($^O eq "MSWin32" ? "data" : "config");
-	state $dir = eval { File::HomeDir->$my_dist_method("Games-2048", {create => 1}) };
+	state $dir = eval {
+		my $my_dist_method = "my_dist_" . ($^O eq "MSWin32" ? "data" : "config");
+		File::HomeDir->$my_dist_method("Games-2048", {create => 1});
+	};
 	return if !defined $dir;
 	return catfile($dir, "game.dat");
 }
