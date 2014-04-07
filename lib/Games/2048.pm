@@ -52,7 +52,7 @@ package Games::2048;
 use 5.012;
 use Moo;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use Time::HiRes;
 
