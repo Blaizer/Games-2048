@@ -7,9 +7,8 @@ use Term::ANSIColor;
 use POSIX qw/floor ceil/;
 use List::Util qw/max min/;
 BEGIN {
-	if (eval { require 'Color::ANSI::Util'; 1 }) {
-		Color::ANSI::Util->import(qw/ansifg ansibg/);
-	}
+	eval { require Color::ANSI::Util; 1 }
+		and Color::ANSI::Util->import(qw/ansifg ansibg/);
 }
 
 extends 'Games::2048::Grid';
