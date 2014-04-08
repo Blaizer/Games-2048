@@ -6,13 +6,7 @@ use Text::Wrap;
 use Term::ANSIColor;
 use POSIX qw/floor ceil/;
 use List::Util qw/max min/;
-
-# Try to use Color::ANSI::Util if we're using Konsole
-my $_use_color_util = $ENV{KONSOLE_DBUS_SERVICE} && eval {
-	require Color::ANSI::Util;
-	Color::ANSI::Util->import(qw/ansifg ansibg/);
-	1;
-};
+use Color::ANSI::Util qw/ansifg ansibg/;
 
 extends 'Games::2048::Grid';
 
@@ -177,7 +171,7 @@ sub draw_sub_score {
 
 sub tile_color {
 	my ($self, $value) = @_;
-    if ($_use_color_util) {
+    if ($ENV{KONSOLE_DBUS_SERVICE}) {
         return
 		!defined $value    ? ansifg("BBADA0") . ansibg("CCC0B3")
 		: $value < 4       ? ansifg("776E65") . ansibg("EEE4DA")
@@ -209,7 +203,7 @@ sub tile_color {
 }
 
 sub border_color {
-	$_use_color_util
+	$ENV{KONSOLE_DBUS_SERVICE}
 		? ansifg("CCC0B3") . ansibg("BBADA0")
 		: color("reverse");
 }
