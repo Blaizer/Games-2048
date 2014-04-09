@@ -53,11 +53,10 @@ sub poll_key {
 
 sub key_vector {
 	my ($key) = @_;
-	state (@vectors, @keys);
-	@vectors = ( [0, -1], [0, 1], [1, 0], [-1, 0] );
-	@keys = map "\e[$_", "A".."D";
+	state $vectors = [ [0, -1], [0, 1], [1, 0], [-1, 0] ];
+	state $keys = [ map "\e[$_", "A".."D" ];
 	for (0..3) {
-		return $vectors[$_] if $key eq $keys[$_];
+		return $vectors->[$_] if $key eq $keys->[$_];
 	}
 	return;
 }
