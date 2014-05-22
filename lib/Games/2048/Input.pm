@@ -28,7 +28,7 @@ sub read_key {
 
 	while ($packet =~ m(
 		\G(
-			\e [[O]        # CSI - \e[ or \eO
+			\e \[          # CSI
 			[\x30-\x3f]*   # Parameter Bytes
 			[\x20-\x2f]*   # Intermediate Bytes
 			[\x40-\x7e]    # Final Byte
