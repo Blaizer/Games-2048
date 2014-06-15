@@ -11,7 +11,7 @@ ReadMode "cbreak";
 
 # manual and automatic window size updating
 my $_window_size;
-eval { $SIG{WINCH} = \&update_window_size };
+my $_window_size_is_automatic = eval { $SIG{WINCH} = \&update_window_size; 1 };
 
 sub read_key {
 	state @keys;
@@ -26,7 +26,7 @@ sub read_key {
 		$packet .= $char;
 	}
 
-	while ($packet =~ m(
+	push @keys, $packet =~ m(
 		\G(
 			\e \[          # CSI
 			[\x30-\x3f]*   # Parameter Bytes
@@ -35,9 +35,7 @@ sub read_key {
 		|
 			.              # Otherwise just any character
 		)
-	)gsx) {
-		push @keys, $1;
-	}
+	)gsx;
 
 	return shift @keys;
 }
@@ -68,6 +66,10 @@ sub update_window_size {
 
 sub window_size {
 	$_window_size;
+}
+
+sub window_size_is_automatic {
+	$_window_size_is_automatic;
 }
 
 1;
