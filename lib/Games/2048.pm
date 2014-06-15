@@ -51,16 +51,16 @@ See L<http://dev.perl.org/licenses/> for more information.
 package Games::2048;
 use 5.012;
 use Moo;
+use mro;
 
 our $VERSION = '0.08';
 
 use Time::HiRes;
 
-use constant {
-	FRAME_TIME => 1/15,
-};
+use constant FRAME_TIME => 1/15;
 
 use Games::2048::Input;
+use Games::2048::Serializable;
 use Games::2048::Animation;
 use Games::2048::Tile;
 use Games::2048::Grid;

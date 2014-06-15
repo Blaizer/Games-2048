@@ -10,9 +10,9 @@ use Color::ANSI::Util qw/ansifg ansibg/;
 
 extends 'Games::2048::Grid';
 
+has needs_redraw => is => 'rw', default => 1;
 has score        => is => 'rw', default => 0;
 has best_score   => is => 'rw', default => 0;
-has needs_redraw => is => 'rw', default => 1;
 has win          => is => 'rw', default => 0;
 has lose         => is => 'rw', default => 0;
 
@@ -26,16 +26,31 @@ has cell_height   => is => 'rw', default => 3;
 has score_width   => is => 'rw', default => 7;
 
 sub insert_tile {
-	my ($self, $cell, $value) = @_;
-	my $tile = Games::2048::Tile->new(
-		value => $value,
-		appear => Games::2048::Animation->new(
-			duration => 0.2,
-			first_value => -1 / max($self->cell_width, $self->cell_height),
-			last_value => 1,
-		),
-	);
-	$self->set_tile($cell, $tile);
+	my ($self, $tile) = @_;
+	$tile->appear(Games::2048::Animation->new(
+		duration => 0.2,
+		first_value => -1 / max($self->cell_width, $self->cell_height),
+		last_value => 1,
+	));
+	$self->needs_redraw(1);
+}
+
+sub move_tiles {
+	my ($self, $vec) = @_;
+	$self->moving_vec($vec);
+	$self->moving(Games::2048::Animation->new(
+		duration => 0.2,
+		first_value => 0,
+		last_value => $self->size - 1,
+	));
+	$self->needs_redraw(1);
+}
+
+sub move_tile {
+	my ($self, $cell, $tile) = @_;
+	$tile->appear(undef);
+	$tile->merging_tiles(undef);
+	$tile->moving_from($cell);
 }
 
 sub draw {

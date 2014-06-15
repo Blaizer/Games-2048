@@ -2,14 +2,8 @@ package Games::2048::Game;
 use 5.012;
 use Moo;
 
-# increment this whenever we break compat with older game objects
-our $VERSION = '0.02';
-
-use Storable;
-use File::Spec::Functions;
-use File::HomeDir;
-
 extends 'Games::2048::Board';
+with 'Games::2048::Serializable';
 
 has won     => is => 'rw', default => 0;
 has version => is => 'rw', default => __PACKAGE__->VERSION;
@@ -26,6 +20,23 @@ sub insert_random_tile {
 	my $cell = $available_cells[rand @available_cells];
 	my $value = rand() < 0.9 ? 2 : 4;
 	$self->insert_tile($cell, $value);
+}
+
+sub insert_tile {
+	my ($self, $cell, $value) = @_;
+	my $tile = Games::2048::Tile->new(value => $value);
+	$self->set_tile($cell, $tile);
+	$self->next::method($tile);
+}
+
+sub move_tile {
+	my ($self, $cell, $next, $next_tile) = @_;
+	my $tile = $self->tile($cell);
+
+	$self->clear_tile($cell);
+	$self->set_tile($next, $next_tile);
+
+	$self->next::method($cell, $tile);
 }
 
 sub move_tiles {
@@ -48,62 +59,54 @@ sub move_tiles {
 			# merge
 			my $next_tile = $self->tile($next);
 
-			$tile->moving_from($cell);
-
-			$tile->merging_tiles(undef);
-			$tile->appear(undef);
-			$next_tile->merging_tiles(undef);
-			$next_tile->appear(undef);
-
 			my $merged_tile = Games::2048::Tile->new(
 				value => $tile->value + $next_tile->value,
 				merging_tiles => [ sort { $reverse } $tile, $next_tile ],
 				merged => 1,
 			);
 
-			$self->clear_tile($cell);
-			$self->set_tile($next, $merged_tile);
+			# slide
+			$self->move_tile($cell, $next, $merged_tile);
+			$moved = 1;
 
+			# add merged tile to score
 			$self->score($self->score + $merged_tile->value);
 			$self->best_score($self->score) if $self->score > $self->best_score;
 			if ($merged_tile->value >= 2048 and !$self->won) {
 				$self->win(1);
 				$self->won(1);
 			}
-			$moved = 1;
+
 		}
 		elsif (!$self->tile($farthest)) {
 			# slide
-			$tile->moving_from($cell);
-			$tile->merging_tiles(undef);
-			$tile->appear(undef);
-
-			$self->clear_tile($cell);
-			$self->set_tile($farthest, $tile);
+			$self->move_tile($cell, $farthest, $tile);
 			$moved = 1;
 		}
 	}
 
-	$_->merged(0) for $self->each_tile;
+	if ($moved) {
+		$_->merged(0) for $self->each_tile;
+		$self->next::method($vec);
+	}
 
 	return $moved;
 }
 
 sub move {
 	my ($self, $vec) = @_;
-	if ($self->move_tiles($vec)) {
-		$self->insert_random_tile;
 
-		$self->needs_redraw(1);
-		$self->moving_vec($vec);
-		$self->moving(Games::2048::Animation->new(
-			duration => 0.2,
-		));
+	my $moved = $self->move_tiles($vec);
+
+	if ($moved) {
+		$self->insert_random_tile;
 
 		if (!$self->has_moves_remaining) {
 			$self->lose(1);
 		}
 	}
+
+	return $moved;
 }
 
 sub cells_can_merge {
@@ -123,31 +126,6 @@ sub has_moves_remaining {
 		}
 	}
 	return;
-}
-
-sub _game_file {
-	state $dir = eval {
-		my $my_dist_method = "my_dist_" . ($^O eq "MSWin32" ? "data" : "config");
-		File::HomeDir->$my_dist_method("Games-2048", {create => 1});
-	};
-	return if !defined $dir;
-	return catfile($dir, "game.dat");
-}
-
-sub save {
-	my $self = shift;
-	$self->version(__PACKAGE__->VERSION);
-	eval { store($self, _game_file); 1 };
-}
-
-sub restore {
-	my $self = eval { retrieve(_game_file) };
-	$self;
-}
-
-sub is_valid {
-	my $self = shift;
-	defined $self->version and $self->version >= __PACKAGE__->VERSION;
 }
 
 1;
