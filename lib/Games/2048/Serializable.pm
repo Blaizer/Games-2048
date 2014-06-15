@@ -3,11 +3,13 @@ use 5.012;
 use Moo::Role;
 
 # increment this whenever we break compat with older game objects
-our $VERSION = '0.03';
+our $VERSION = '0.02';
 
 use Storable;
 use File::Spec::Functions;
 use File::HomeDir;
+
+has version => is => 'rw', default => __PACKAGE__->VERSION;
 
 sub _game_file {
 	state $dir = eval {
@@ -33,3 +35,5 @@ sub is_valid {
 	my $self = shift;
 	defined $self->version and $self->version >= __PACKAGE__->VERSION;
 }
+
+1;

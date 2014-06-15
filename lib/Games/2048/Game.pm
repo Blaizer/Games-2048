@@ -6,7 +6,6 @@ extends 'Games::2048::Board';
 with 'Games::2048::Serializable';
 
 has won     => is => 'rw', default => 0;
-has version => is => 'rw', default => __PACKAGE__->VERSION;
 
 sub insert_start_tiles {
 	my ($self, $start_tiles) = @_;
