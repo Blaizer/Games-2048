@@ -5,7 +5,7 @@ use Moo;
 extends 'Games::2048::Board';
 with 'Games::2048::Serializable';
 
-has won     => is => 'rw', default => 0;
+has won => is => 'rw', default => 0;
 
 sub insert_start_tiles {
 	my ($self, $start_tiles) = @_;
