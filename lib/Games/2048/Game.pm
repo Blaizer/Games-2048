@@ -30,12 +30,8 @@ sub insert_tile {
 
 sub move_tile {
 	my ($self, $cell, $next, $next_tile) = @_;
-	my $tile = $self->tile($cell);
-
 	$self->clear_tile($cell);
 	$self->set_tile($next, $next_tile);
-
-	$self->next::method($cell, $tile);
 }
 
 sub move_tiles {

@@ -31,21 +31,16 @@ sub insert_tile {
 
 	$tile->appearing(1);
 	$self->appearing(Games::2048::Animation->new(
-		duration => 0.2,
+		duration => 0.3,
 		first_value => -1 / max($self->cell_width, $self->cell_height),
 		last_value => 1,
 	));
 	$self->needs_redraw(1);
 }
 
-sub reset_appearing {
-	my $self = shift;
-	$_->appearing(0) for $self->each_tile;
-	$self->appearing(undef);
-}
-
 sub move_tiles {
 	my ($self, $vec) = @_;
+	$self->reset_moving;
 	$self->reset_appearing;
 
 	$self->moving_vec($vec);
@@ -58,16 +53,19 @@ sub move_tiles {
 	$self->needs_redraw(1);
 }
 
-sub reset_moving {
+sub reset_appearing {
 	my $self = shift;
-	$self->moving(undef);
+	$_->appearing(0) for $self->each_tile;
+	$self->appearing(undef);
 }
 
-sub move_tile {
-	my ($self, $cell, $tile) = @_;
-	$tile->appearing(0);
-	$tile->merging_tiles(undef);
-	$tile->moving_from($cell);
+sub reset_moving {
+	my $self = shift;
+	for ($self->each_tile) {
+		$_->moving_from(undef);
+		$_->merging_tiles(undef);
+	}
+	$self->moving(undef);
 }
 
 sub draw {
