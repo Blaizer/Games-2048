@@ -6,7 +6,7 @@ has value  => is => 'rw', default => 2;
 has merged => is => 'rw', default => 0;
 
 # for animation
-has appear        => is => 'rw';
+has appearing     => is => 'rw', default => 0;
 has merging_tiles => is => 'rw';
 has moving_from   => is => 'rw';
 

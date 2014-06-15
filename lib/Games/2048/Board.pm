@@ -16,6 +16,7 @@ has best_score   => is => 'rw', default => 0;
 has win          => is => 'rw', default => 0;
 has lose         => is => 'rw', default => 0;
 
+has appearing  => is => 'rw';
 has moving     => is => 'rw';
 has moving_vec => is => 'rw';
 
@@ -27,7 +28,9 @@ has score_width   => is => 'rw', default => 7;
 
 sub insert_tile {
 	my ($self, $tile) = @_;
-	$tile->appear(Games::2048::Animation->new(
+
+	$tile->appearing(1);
+	$self->appearing(Games::2048::Animation->new(
 		duration => 0.2,
 		first_value => -1 / max($self->cell_width, $self->cell_height),
 		last_value => 1,
@@ -35,20 +38,34 @@ sub insert_tile {
 	$self->needs_redraw(1);
 }
 
+sub reset_appearing {
+	my $self = shift;
+	$_->appearing(0) for $self->each_tile;
+	$self->appearing(undef);
+}
+
 sub move_tiles {
 	my ($self, $vec) = @_;
+	$self->reset_appearing;
+
 	$self->moving_vec($vec);
 	$self->moving(Games::2048::Animation->new(
 		duration => 0.2,
 		first_value => 0,
 		last_value => $self->size - 1,
 	));
+
 	$self->needs_redraw(1);
+}
+
+sub reset_moving {
+	my $self = shift;
+	$self->moving(undef);
 }
 
 sub move_tile {
 	my ($self, $cell, $tile) = @_;
-	$tile->appear(undef);
+	$tile->appearing(0);
 	$tile->merging_tiles(undef);
 	$tile->moving_from($cell);
 }
@@ -64,6 +81,10 @@ sub draw {
 
 	$self->draw_score;
 	$self->draw_border_horizontal;
+
+	# set if anything is *actually* moving or appearing
+	my $moving;
+	my $appearing;
 
 	for my $y (0..$self->size-1) {
 		for my $line (0..$self->cell_height-1) {
@@ -97,14 +118,12 @@ sub draw {
 					$string = " " x $self->cell_width;
 				}
 
-				if ($tile and $tile->appear) {
+				if ($tile and $tile->appearing) {
 					# if any animation is going we need to keep redrawing
 					$self->needs_redraw(1);
 
-					my $value = $tile->appear->value;
-					if ($line == $self->cell_height-1) {
-						$tile->appear(undef) if !$tile->appear->update;
-					}
+					my $value = $self->appearing->value;
+					$appearing = 1;
 
 					my $x_center = ($self->cell_width  - 1) / 2;
 					my $y_center = ($self->cell_height - 1) / 2;
@@ -144,6 +163,10 @@ sub draw {
 			say color("reset");
 		}
 	}
+
+	# update animations
+	$self->reset_appearing if $appearing and !$self->appearing->update;
+	$self->reset_moving if $self->moving and !$moving || !$self->moving->update;
 
 	$self->draw_border_horizontal;
 	$self->show_cursor if !$self->needs_redraw;
