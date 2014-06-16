@@ -12,22 +12,24 @@ use File::HomeDir;
 has version => is => 'rw', default => __PACKAGE__->VERSION;
 
 sub _game_file {
+	my ($file) = @_;
 	state $dir = eval {
 		my $my_dist_method = "my_dist_" . ($^O eq "MSWin32" ? "data" : "config");
 		File::HomeDir->$my_dist_method("Games-2048", {create => 1});
 	};
 	return if !defined $dir;
-	return catfile($dir, "game.dat");
+	return catfile $dir, $file;
 }
 
 sub save {
-	my $self = shift;
+	my ($self, $file) = @_;
 	$self->version(__PACKAGE__->VERSION);
-	eval { store($self, _game_file); 1 };
+	eval { store $self, _game_file($file); 1 };
 }
 
 sub restore {
-	my $self = eval { retrieve(_game_file) };
+	my ($self, $file) = @_;
+	$self = eval { retrieve _game_file($file) };
 	$self;
 }
 

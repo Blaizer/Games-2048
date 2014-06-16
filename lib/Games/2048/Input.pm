@@ -59,6 +59,26 @@ sub key_vector {
 	return;
 }
 
+sub frame_delay {
+	state $time;
+
+	if (@_ < 1) {
+		$time = Time::HiRes::time;
+	}
+	else {
+		my ($frame_time) = @_;
+
+		my $new_time = Time::HiRes::time;
+		my $delta_time = $new_time - $time;
+		my $delay = $frame_time - $delta_time;
+		$time = $new_time;
+		if ($delay > 0) {
+			Time::HiRes::sleep($delay);
+			$time += $delay;
+		}
+	}
+}
+
 sub update_window_size {
 	($_window_size) = eval { GetTerminalSize *STDOUT };
 	$_window_size //= 80;

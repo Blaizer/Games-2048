@@ -55,8 +55,6 @@ use mro;
 
 our $VERSION = '0.08';
 
-use Time::HiRes;
-
 use constant FRAME_TIME => 1/15;
 
 use Games::2048::Input;
@@ -70,6 +68,16 @@ use Games::2048::Game;
 has size        => is => 'ro', default => 4;
 has start_tiles => is => 'ro', default => 2;
 has best_score  => is => 'rw', default => 0;
+has game_file   => is => 'rw', default => 'game.dat';
+
+# has input => is => 'rw';
+
+has no_frame_delay  => is => 'rw', default => 0;
+has no_user_input   => is => 'rw', default => 0;
+has no_animations   => is => 'rw', default => 0;
+has no_restore_game => is => 'rw', default => 0;
+has no_save_game    => is => 'rw', default => 0;
+has no_win_message  => is => 'rw', default => 0;
 
 sub run {
 	my $self = shift;
@@ -80,9 +88,9 @@ sub run {
 	Games::2048::Input::update_window_size;
 
 	while (!$quit) {
-		if ($first_time and $game = Games::2048::Game->restore) {
-			$self->update_best_score($game);
-			undef $game if $game->lose or !$game->is_valid;
+		if ($first_time and $game = Games::2048::Game->restore($self->game_file)) {
+			$self->update_with_game($game);
+			undef $game if $self->no_restore_game or $game->lose or !$game->is_valid;
 		}
 		else {
 			undef $game;
@@ -104,10 +112,14 @@ sub run {
 		RUN: $game->draw;
 
 		my $restart;
-		my $time = Time::HiRes::time;
+
+		# initialize the frame delay
+		Games::2048::Input::frame_delay if !$self->no_frame_delay;
 
 		PLAY: while (1) {
-			if (!$game->lose and !$game->win) {
+
+
+			if (!$self->no_user_input and !$game->lose and !$game->win) {
 				while (defined(my $key = Games::2048::Input::read_key)) {
 					my $vec = Games::2048::Input::key_vector($key);
 					if ($vec) {
@@ -121,8 +133,16 @@ sub run {
 						$restart = 1;
 						last PLAY;
 					}
+					elsif ($key =~ /^[a]$/i) {
+						my $no_anim = !$self->no_animations;
+						$self->no_animations($no_anim);
+						$game->no_animations($no_anim);
+						$game->reset_animations if $no_anim;
+					}
 				}
 			}
+
+			$game->win(0) if $self->no_win_message;
 
 			$game->draw(1);
 
@@ -130,14 +150,7 @@ sub run {
 				last PLAY;
 			}
 
-			my $new_time = Time::HiRes::time;
-			my $delta_time = $new_time - $time;
-			my $delay = FRAME_TIME - $delta_time;
-			$time = $new_time;
-			if ($delay > 0) {
-				Time::HiRes::sleep($delay);
-				$time += $delay;
-			}
+			Games::2048::Input::frame_delay(FRAME_TIME) if !$self->no_frame_delay;
 		}
 
 		$game->draw_win;
@@ -170,7 +183,13 @@ sub run {
 		}
 	}
 
-	$game->save;
+	$game->save($self->game_file) if !$self->no_save_game;
+}
+
+sub update_with_game {
+	my ($self, $game) = @_;
+	$self->no_animations($game->no_animations) if !$self->no_user_input;
+	$self->update_best_score($game);
 }
 
 sub update_best_score {

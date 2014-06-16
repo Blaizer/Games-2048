@@ -16,9 +16,10 @@ has best_score   => is => 'rw', default => 0;
 has win          => is => 'rw', default => 0;
 has lose         => is => 'rw', default => 0;
 
-has appearing  => is => 'rw';
-has moving     => is => 'rw';
-has moving_vec => is => 'rw';
+has appearing     => is => 'rw';
+has moving        => is => 'rw';
+has moving_vec    => is => 'rw';
+has no_animations => is => 'rw', default => 0;
 
 has border_width  => is => 'rw', default => 2;
 has border_height => is => 'rw', default => 1;
@@ -29,19 +30,24 @@ has score_width   => is => 'rw', default => 7;
 sub insert_tile {
 	my ($self, $tile) = @_;
 
+	$self->needs_redraw(1);
+	return if $self->no_animations;
+
 	$tile->appearing(1);
 	$self->appearing(Games::2048::Animation->new(
 		duration => 0.3,
 		first_value => -1 / max($self->cell_width, $self->cell_height),
 		last_value => 1,
 	));
-	$self->needs_redraw(1);
 }
 
 sub move_tiles {
 	my ($self, $vec) = @_;
-	$self->reset_moving;
-	$self->reset_appearing;
+
+	$self->needs_redraw(1);
+	return if $self->no_animations;
+
+	$self->reset_animations;
 
 	$self->moving_vec($vec);
 	$self->moving(Games::2048::Animation->new(
@@ -49,8 +55,6 @@ sub move_tiles {
 		first_value => 0,
 		last_value => $self->size - 1,
 	));
-
-	$self->needs_redraw(1);
 }
 
 sub reset_appearing {
@@ -66,6 +70,12 @@ sub reset_moving {
 		$_->merging_tiles(undef);
 	}
 	$self->moving(undef);
+}
+
+sub reset_animations {
+	my $self = shift;
+	$self->reset_moving;
+	$self->reset_appearing;
 }
 
 sub draw {
@@ -116,7 +126,7 @@ sub draw {
 					$string = " " x $self->cell_width;
 				}
 
-				if ($tile and $tile->appearing) {
+				if ($tile and $tile->appearing and $self->appearing) {
 					# if any animation is going we need to keep redrawing
 					$self->needs_redraw(1);
 
