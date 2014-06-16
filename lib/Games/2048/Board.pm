@@ -26,6 +26,7 @@ has border_height => is => 'rw', default => 1;
 has cell_width    => is => 'rw', default => 7;
 has cell_height   => is => 'rw', default => 3;
 has score_width   => is => 'rw', default => 7;
+has score_height  => is => 'rw', default => 1;
 
 sub insert_tile {
 	my ($self, $tile) = @_;
@@ -261,7 +262,7 @@ sub board_width {
 
 sub board_height {
 	my $self = shift;
-	return $self->size * $self->cell_height + $self->border_height * 2;
+	return $self->size * $self->cell_height + $self->border_height * 2 + $self->score_height;
 }
 
 sub draw_border_horizontal {
@@ -275,7 +276,7 @@ sub draw_border_vertical {
 
 sub restore_cursor {
 	my $self = shift;
-	printf "\e[%dA", $self->board_height + 1;
+	printf "\e[%dA", $self->board_height;
 }
 
 sub draw_welcome {
