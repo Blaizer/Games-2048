@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+use 5.012;
+use Games::2048;
+use Games::2048::Game::Loser;
+Games::2048->new(
+	game_class => "Games::2048::Game::Loser",
+	no_save_game => 1,
+	no_restore_game => 1,
+	no_animations => 1,
+	# no_frame_delay => 1,
+)->run;
