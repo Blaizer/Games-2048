@@ -6,7 +6,6 @@ use Text::Wrap;
 use Term::ANSIColor;
 use POSIX qw/floor ceil/;
 use List::Util qw/max min/;
-use Color::ANSI::Util qw/ansifg ansibg/;
 
 extends 'Games::2048::Grid';
 
@@ -220,39 +219,59 @@ sub tile_color {
 	my ($self, $value) = @_;
     if ($ENV{KONSOLE_DBUS_SERVICE}) {
         return
-		!defined $value    ? ansifg("BBADA0") . ansibg("CCC0B3")
-		: $value < 4       ? ansifg("776E65") . ansibg("EEE4DA")
-		: $value < 8       ? ansifg("776E65") . ansibg("EDE0C8")
-		: $value < 16      ? ansifg("F9F6F2") . ansibg("F2B179")
-		: $value < 32      ? ansifg("F9F6F2") . ansibg("F59563")
-		: $value < 64      ? ansifg("F9F6F2") . ansibg("F67C5F")
-		: $value < 128     ? ansifg("F9F6F2") . ansibg("F65E3B")
-		: $value < 256     ? ansifg("F9F6F2") . ansibg("EDCF72") . color("bold")
-		: $value < 512     ? ansifg("F9F6F2") . ansibg("EDCC61") . color("bold")
-		: $value < 1024    ? ansifg("F9F6F2") . ansibg("EDC850") . color("bold")
-		: $value < 2048    ? ansifg("F9F6F2") . ansibg("EDC53F") . color("bold")
-		: $value < 4096    ? ansifg("F9F6F2") . ansibg("EDC22E") . color("bold")
-		                   : ansifg("F9F6F2") . ansibg("3C3A32") . color("bold");
+		!defined $value    ? color("reset") . "\e[38;2;187;173;160m" . "\e[48;2;204;192;179m"
+		: $value < 4       ? color("reset") . "\e[38;2;119;110;101m" . "\e[48;2;238;228;218m"
+		: $value < 8       ? color("reset") . "\e[38;2;119;110;101m" . "\e[48;2;237;224;200m"
+		: $value < 16      ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;242;177;121m"
+		: $value < 32      ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;245;149;99m"
+		: $value < 64      ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;246;124;95m"
+		: $value < 128     ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;246;94;59m"
+		: $value < 256     ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;207;114m"
+		: $value < 512     ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;204;97m"
+		: $value < 1024    ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;200;80m"
+		: $value < 2048    ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;197;63m"
+		: $value < 4096    ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;194;46m"
+		                   : color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;60;58;50m";
+	}
+	if (0) {
+        return
+		!defined $value    ? color("reset") . "\e[38;5;249m" . "\e[48;5;251m"
+		: $value < 4       ? color("reset") . "\e[38;5;243m" . "\e[48;5;231m"
+		: $value < 8       ? color("reset") . "\e[38;5;243m" . "\e[48;5;230m"
+		: $value < 16      ? color("reset") . "\e[38;5;231m" . "\e[48;5;215m"
+		: $value < 32      ? color("reset") . "\e[38;5;231m" . "\e[48;5;209m"
+		: $value < 64      ? color("reset") . "\e[38;5;231m" . "\e[48;5;203m"
+		: $value < 128     ? color("reset") . "\e[38;5;231m" . "\e[48;5;196m"
+		: $value < 256     ? color("bold")  . "\e[38;5;231m" . "\e[48;5;227m"
+		: $value < 512     ? color("bold")  . "\e[38;5;231m" . "\e[48;5;227m"
+		: $value < 1024    ? color("bold")  . "\e[38;5;231m" . "\e[48;5;226m"
+		: $value < 2048    ? color("bold")  . "\e[38;5;231m" . "\e[48;5;226m"
+		: $value < 4096    ? color("bold")  . "\e[38;5;231m" . "\e[48;5;220m"
+		                   : color("bold")  . "\e[38;5;231m" . "\e[48;5;237m";
 	}
 	my $bright = $^O eq "MSWin32" ? "underline " : "bright_";
 	my $bold   = $^O eq "MSWin32" ? "underline"  : "bold";
 	return color (
 		!defined $value    ? "reset"
-		: $value < 4       ? "reverse cyan"
-		: $value < 8       ? "reverse ${bright}blue"
-		: $value < 16      ? "reverse blue"
-		: $value < 32      ? "reverse green"
-		: $value < 64      ? "reverse magenta"
-		: $value < 128     ? "reverse red"
-		: $value < 4096    ? "reverse yellow"
-		                   : "reverse $bold"
+		: $value < 4       ? "reset reverse cyan"
+		: $value < 8       ? "reset reverse ${bright}blue"
+		: $value < 16      ? "reset reverse blue"
+		: $value < 32      ? "reset reverse green"
+		: $value < 64      ? "reset reverse magenta"
+		: $value < 128     ? "reset reverse red"
+		: $value < 4096    ? "reset reverse yellow"
+		                   : "reset reverse $bold"
 	);
 }
 
 sub border_color {
-	$ENV{KONSOLE_DBUS_SERVICE}
-		? ansifg("CCC0B3") . ansibg("BBADA0")
-		: color("reverse");
+	if ($ENV{KONSOLE_DBUS_SERVICE}) {
+		return color("reset") . "\e[38;2;204;192;179m" . "\e[48;2;187;173;160m";
+	}
+	if (0) {
+		return color("reset") . "\e[38;5;251m" . "\e[48;5;249m";
+	}
+	return color("reset reverse");
 }
 
 sub board_width {

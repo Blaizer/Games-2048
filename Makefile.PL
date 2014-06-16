@@ -37,7 +37,6 @@ requires (
 	'strictures'        => 1.005,
 	'Term::ReadKey'     => 2.31,
 	'File::HomeDir'     => 1.00,
-	'Color::ANSI::Util' => 0.12,
 	('Win32::Console::ANSI' => 1.07) x ($^O eq 'MSWin32'),
 );
 
