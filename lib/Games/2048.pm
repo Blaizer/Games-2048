@@ -27,8 +27,6 @@ Once installed, run the game with the command:
 
 =item * Add colors for 256-color terminals
 
-=item * Abstract input system to allow for AI or replay input
-
 =item * Test on more systems and terminals
 
 =back
