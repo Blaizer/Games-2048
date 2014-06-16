@@ -57,149 +57,154 @@ our $VERSION = '0.08';
 
 use constant FRAME_TIME => 1/15;
 
-use Games::2048::Input;
+use Games::2048::Util;
 use Games::2048::Serializable;
 use Games::2048::Animation;
 use Games::2048::Tile;
 use Games::2048::Grid;
 use Games::2048::Board;
 use Games::2048::Game;
+use Games::2048::Game::Input;
+
+has game       => is => 'rw';
+has game_class => is => 'rw', default => 'Games::2048::Game::Input';
+has game_file  => is => 'rw', default => 'game.dat';
+
+has quit    => is => 'rw', default => 0;
+has restart => is => 'rw', default => 0;
 
 has size        => is => 'ro', default => 4;
 has start_tiles => is => 'ro', default => 2;
 has best_score  => is => 'rw', default => 0;
-has game_file   => is => 'rw', default => 'game.dat';
-
-# has input => is => 'rw';
 
 has no_frame_delay  => is => 'rw', default => 0;
-has no_user_input   => is => 'rw', default => 0;
-has no_animations   => is => 'rw', default => 0;
+has no_animations   => is => 'rw', default => 0, trigger => 1;
 has no_restore_game => is => 'rw', default => 0;
 has no_save_game    => is => 'rw', default => 0;
-has no_win_message  => is => 'rw', default => 0;
 
 sub run {
 	my $self = shift;
 
-	my $quit;
-	my $game;
+	$self->quit(0);
 	my $first_time = 1;
-	Games::2048::Input::update_window_size;
+	Games::2048::Util::update_window_size;
 
-	while (!$quit) {
-		if ($first_time and $game = Games::2048::Game->restore($self->game_file)) {
-			$self->update_with_game($game);
-			undef $game if $self->no_restore_game or $game->lose or !$game->is_valid;
-		}
-		else {
-			undef $game;
-		}
-		if (!$game) {
-			$game = Games::2048::Game->new(
-				size => $self->size,
-				best_score => $self->best_score,
-			);
-
-			$game->insert_start_tiles($self->start_tiles);
-		}
+	while (!$self->quit) {
+		$self->game(undef);
+		$self->restore_game if $first_time;
+		$self->game(undef) if $self->no_restore_game;
+		$self->new_game if !$self->game;
 
 		if ($first_time) {
 			$first_time = 0;
-			$game->draw_welcome;
+			$self->game->draw_welcome;
 		}
 
-		RUN: $game->draw;
+		KEEP_GOING: $self->game->draw;
 
-		my $restart;
+		$self->restart(0);
 
 		# initialize the frame delay
-		Games::2048::Input::frame_delay if !$self->no_frame_delay;
+		Games::2048::Util::frame_delay if !$self->no_frame_delay;
 
-		PLAY: while (1) {
-
-
-			if (!$self->no_user_input and !$game->lose and !$game->win) {
-				while (defined(my $key = Games::2048::Input::read_key)) {
-					my $vec = Games::2048::Input::key_vector($key);
-					if ($vec) {
-						$game->move($vec);
-					}
-					elsif ($key =~ /^[q]$/i) {
-						$quit = 1;
-						last PLAY;
-					}
-					elsif ($key =~ /^[r]$/i) {
-						$restart = 1;
-						last PLAY;
-					}
-					elsif ($key =~ /^[a]$/i) {
-						my $no_anim = !$self->no_animations;
-						$self->no_animations($no_anim);
-						$game->no_animations($no_anim);
-						$game->reset_animations if $no_anim;
-					}
-				}
+		while (1) {
+			unless ($self->game->lose || $self->game->win) {
+				$self->game->handle_input($self);
 			}
 
-			$game->win(0) if $self->no_win_message;
+			$self->game->draw(1);
 
-			$game->draw(1);
-
-			if (!$game->needs_redraw and $game->lose || $game->win) {
-				last PLAY;
+			if ($self->quit or $self->restart
+				or $self->game->lose || $self->game->win and !$self->game->needs_redraw
+			) {
+				last;
 			}
 
-			Games::2048::Input::frame_delay(FRAME_TIME) if !$self->no_frame_delay;
+			Games::2048::Util::frame_delay(FRAME_TIME) if !$self->no_frame_delay;
 		}
 
-		$game->draw_win;
-		$self->update_best_score($game);
+		$self->game->draw_win;
+		$self->update_best_score;
+		$self->save_game if !$self->no_save_game and $self->game->lose;
 
-		if (!$quit and !$restart) {
-			print $game->win ? "Keep going?" : "Try again?", " (Y/n) ";
+		if (!$self->quit and !$self->restart) {
+			print $self->game->win ? "Keep going?" : "Try again?", " (Y/n) ";
 			STDOUT->flush;
-			{
-				my $key = Games::2048::Input::poll_key;
-				if ($key =~ /^[yn]$/i) {
-					print $key;
-				}
-				if ($key =~ /^[nq]$/i) {
-					$quit = 1;
-				}
-				elsif ($key =~ /^[yr\n]$/i) {
-					say "";
-				}
-				else {
-					redo;
-				}
+			$self->game->handle_finish($self);
+
+			if ($self->quit) {
+				print "n";
+			}
+			else {
+				say "y";
 			}
 		}
 		say "";
 
-		if ($game->win) {
-			$game->win(0);
-			goto RUN if !$quit;
+		if ($self->game->win) {
+			$self->game->win(0);
+			goto KEEP_GOING if !$self->quit;
 		}
 	}
 
-	$game->save($self->game_file) if !$self->no_save_game;
+	$self->save_game if !$self->no_save_game;
 }
 
-sub update_with_game {
-	my ($self, $game) = @_;
-	$self->no_animations($game->no_animations) if !$self->no_user_input;
-	$self->update_best_score($game);
+sub move {
+	my ($self, $vec) = @_;
+	$self->game->move($vec);
+}
+
+sub new_game {
+	my $self = shift;
+
+	my $game_class = $self->game_class;
+	$self->game($game_class->new(
+		size => $self->size,
+		best_score => $self->best_score,
+		no_animations => $self->no_animations,
+	));
+
+	$self->game->insert_start_tiles($self->start_tiles);
+}
+
+sub restore_game {
+	my $self = shift;
+
+	my $game_class = $self->game_class;
+	$self->game($game_class->restore($self->game_file));
+	if ($self->game) {
+		$self->update;
+		$self->game(undef) if $self->game->lose or !$self->game->is_valid;
+	}
+}
+
+sub save_game {
+	my $self = shift;
+	$self->game->save($self->game_file);
+}
+
+sub update {
+	my $self = shift;
+	$self->no_animations($self->game->no_animations);
+	$self->update_best_score;
 }
 
 sub update_best_score {
-	my ($self, $game) = @_;
+	my $self = shift;
+	my $game = $self->game;
 	if (defined $game->best_score and $game->best_score > $self->best_score) {
 		$self->best_score($game->best_score);
 	}
 	else {
 		$game->best_score($self->best_score);
 	}
+}
+
+sub _trigger_no_animations {
+	my ($self, $no_anim) = @_;
+	$self->game->no_animations($no_anim);
+	$self->game->reset_animations if $no_anim;
 }
 
 1;

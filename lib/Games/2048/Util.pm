@@ -1,4 +1,4 @@
-package Games::2048::Input;
+package Games::2048::Util;
 use 5.012;
 use strictures;
 

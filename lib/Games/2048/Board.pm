@@ -279,7 +279,7 @@ sub restore_cursor {
 }
 
 sub draw_welcome {
-	local $Text::Wrap::columns = Games::2048::Input::window_size;
+	local $Text::Wrap::columns = Games::2048::Util::window_size;
 
 	my $message = <<MESSAGE;
 2048 - Join the numbers and get to the 2048 tile!
