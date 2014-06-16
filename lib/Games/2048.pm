@@ -49,7 +49,8 @@ See L<http://dev.perl.org/licenses/> for more information.
 package Games::2048;
 use 5.012;
 use Moo;
-use mro;
+use mro; # enable next::method globally
+use Scalar::Util qw/blessed/;
 
 our $VERSION = '0.08';
 
@@ -148,11 +149,6 @@ sub run {
 	$self->save_game if !$self->no_save_game;
 }
 
-sub move {
-	my ($self, $vec) = @_;
-	$self->game->move($vec);
-}
-
 sub new_game {
 	my $self = shift;
 
@@ -171,9 +167,17 @@ sub restore_game {
 
 	my $game_class = $self->game_class;
 	$self->game($game_class->restore($self->game_file));
-	if ($self->game) {
-		$self->update;
-		$self->game(undef) if $self->game->lose or !$self->game->is_valid;
+
+	if (!$self->game or !blessed $self->game or ref $self->game ne $self->game_class) {
+		$self->game(undef);
+		return;
+	}
+
+	$self->update;
+
+	if ($self->game->lose or !$self->game->is_valid) {
+		$self->game(undef);
+		return;
 	}
 }
 
@@ -201,6 +205,7 @@ sub update_best_score {
 
 sub _trigger_no_animations {
 	my ($self, $no_anim) = @_;
+	return if !$self->game;
 	$self->game->no_animations($no_anim);
 	$self->game->reset_animations if $no_anim;
 }

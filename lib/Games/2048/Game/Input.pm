@@ -8,34 +8,58 @@ sub handle_input {
 	my ($self, $app) = @_;
 
 	while (defined(my $key = Games::2048::Util::read_key)) {
-		my $vec = Games::2048::Util::key_vector($key);
-		if ($vec) {
-			$app->move($vec);
-		}
-		elsif ($key =~ /^[q]$/i) {
-			$app->quit(1);
-		}
-		elsif ($key =~ /^[r]$/i) {
-			$app->restart(1);
-		}
-		elsif ($key =~ /^[a]$/i) {
-			$app->no_animations(!$app->no_animations);
-		}
+		   $self->handle_input_key_vector($app, $key)
+		or $self->handle_input_key_quit_restart($app, $key)
+		or $self->handle_input_key_option($app, $key)
+		or $self->handle_input_key($app, $key);
 	}
 }
+
+sub handle_input_key_vector {
+	my ($self, $app, $key) = @_;
+	my $vec = Games::2048::Util::key_vector($key);
+	if ($vec) {
+		$self->move($vec);
+		1;
+	}
+}
+sub handle_input_key_quit_restart {
+	my ($self, $app, $key) = @_;
+	if ($key =~ /^[q]$/i) {
+		$app->quit(1);
+		1;
+	}
+	elsif ($key =~ /^[r]$/i) {
+		$app->restart(1);
+		1;
+	}
+}
+sub handle_input_key_option {
+	my ($self, $app, $key) = @_;
+	if ($key =~ /^[a]$/i) {
+		$app->no_animations(!$app->no_animations);
+		1;
+	}
+}
+sub handle_input_key {}
 
 sub handle_finish {
 	my ($self, $app) = @_;
 
 	while (1) {
 		my $key = Games::2048::Util::poll_key;
-		if ($key =~ /^[nq]$/i) {
-			$app->quit(1);
-			return;
-		}
-		elsif ($key =~ /^[yr\n]$/i) {
-			return;
-		}
+		$self->handle_finish_key($app, $key) and return;
+	}
+}
+
+sub handle_finish_key {
+	my ($self, $app, $key) = @_;
+	if ($key =~ /^[nq]$/i) {
+		$app->quit(1);
+		1;
+	}
+	elsif ($key =~ /^[yr\n]$/i) {
+		1;
 	}
 }
 
