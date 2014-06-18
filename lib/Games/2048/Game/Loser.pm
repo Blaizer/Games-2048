@@ -13,6 +13,11 @@ has toggle    => is => 'rw', default => 0;
 has toggle_xy => is => 'rw', default => 0;
 has lowest    => is => 'rw', default => 0;
 
+sub BUILD {
+	my $self = shift;
+	$self->no_animations(1);
+}
+
 sub handle_input {
 	my ($self, $app) = @_;
 
