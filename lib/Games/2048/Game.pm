@@ -5,11 +5,14 @@ use Moo;
 extends 'Games::2048::Board';
 with 'Games::2048::Serializable';
 
+has tiles_insert_on_start => is => 'rw', default => 2;
+has tiles_insert_on_move  => is => 'rw', default => 1;
+
 has won => is => 'rw', default => 0;
 
 sub insert_start_tiles {
-	my ($self, $start_tiles) = @_;
-	$self->insert_random_tile for 1..$start_tiles;
+	my $self = shift;
+	$self->insert_random_tile for 1..$self->tiles_insert_on_start;
 }
 
 sub insert_random_tile {
@@ -94,7 +97,7 @@ sub move {
 	my $moved = $self->move_tiles($vec);
 
 	if ($moved) {
-		$self->insert_random_tile;
+		$self->insert_random_tile for 1..$self->tiles_insert_on_move;
 
 		if (!$self->has_moves_remaining) {
 			$self->lose(1);

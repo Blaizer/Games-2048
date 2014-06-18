@@ -11,14 +11,17 @@ extends 'Games::2048::Grid';
 
 has needs_redraw => is => 'rw', default => 1;
 has score        => is => 'rw', default => 0;
-has best_score   => is => 'rw', default => 0;
 has win          => is => 'rw', default => 0;
 has lose         => is => 'rw', default => 0;
+
+has best_score    => is => 'rw', default => 0;
+has no_animations => is => 'rw', default => 0;
+has zoom          => is => 'rw', default => 2, trigger => 1, coerce => \&_coerce_zoom;
+has colors        => is => 'rw', builder => 1, coerce => \&_coerce_colors;
 
 has appearing     => is => 'rw';
 has moving        => is => 'rw';
 has moving_vec    => is => 'rw';
-has no_animations => is => 'rw', default => 0;
 
 has border_width  => is => 'rw', default => 2;
 has border_height => is => 'rw', default => 1;
@@ -26,6 +29,14 @@ has cell_width    => is => 'rw', default => 7;
 has cell_height   => is => 'rw', default => 3;
 has score_width   => is => 'rw', default => 7;
 has score_height  => is => 'rw', default => 1;
+
+my @zooms = (
+	[ 3, 1 ],
+	[ 5, 2 ],
+	[ 7, 3 ],
+	[ 9, 4 ],
+	[ 11, 5 ],
+);
 
 sub insert_tile {
 	my ($self, $tile) = @_;
@@ -87,6 +98,8 @@ sub draw {
 	$self->restore_cursor if $redraw;
 	$self->needs_redraw(0);
 
+	say "" if !$redraw;
+
 	$self->draw_score;
 	$self->draw_border_horizontal;
 
@@ -105,6 +118,10 @@ sub draw {
 				my $value = $tile ? $tile->value : undef;
 				my $color = $self->tile_color($value);
 				my $bgcolor = $self->tile_color(undef);
+
+				if (defined $value and length($value) > $self->cell_width * $self->cell_height) {
+					$value = int($value/1000) . "k";
+				}
 
 				my $lines = min(ceil(length($value // '') / $self->cell_width), $self->cell_height);
 				my $first_line = floor(($self->cell_height - $lines) / 2);
@@ -217,61 +234,56 @@ sub draw_sub_score {
 
 sub tile_color {
 	my ($self, $value) = @_;
-    if ($ENV{KONSOLE_DBUS_SERVICE}) {
+    if ($self->colors == 2) {
         return
-		!defined $value    ? color("reset") . "\e[38;2;187;173;160m" . "\e[48;2;204;192;179m"
-		: $value < 4       ? color("reset") . "\e[38;2;119;110;101m" . "\e[48;2;238;228;218m"
-		: $value < 8       ? color("reset") . "\e[38;2;119;110;101m" . "\e[48;2;237;224;200m"
-		: $value < 16      ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;242;177;121m"
-		: $value < 32      ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;245;149;99m"
-		: $value < 64      ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;246;124;95m"
-		: $value < 128     ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;246;94;59m"
-		: $value < 256     ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;207;114m"
-		: $value < 512     ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;204;97m"
-		: $value < 1024    ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;200;80m"
-		: $value < 2048    ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;197;63m"
-		: $value < 4096    ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;194;46m"
-		                   : color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;60;58;50m";
+		!defined $value ? color("reset") . "\e[38;2;187;173;160m" . "\e[48;2;204;192;179m"
+		: $value < 4    ? color("reset") . "\e[38;2;119;110;101m" . "\e[48;2;238;228;218m"
+		: $value < 8    ? color("reset") . "\e[38;2;119;110;101m" . "\e[48;2;237;224;200m"
+		: $value < 16   ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;242;177;121m"
+		: $value < 32   ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;245;149;99m"
+		: $value < 64   ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;246;124;95m"
+		: $value < 128  ? color("reset") . "\e[38;2;249;246;242m" . "\e[48;2;246;94;59m"
+		: $value < 256  ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;207;114m"
+		: $value < 512  ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;204;97m"
+		: $value < 1024 ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;200;80m"
+		: $value < 2048 ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;197;63m"
+		: $value < 4096 ? color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;237;194;46m"
+		                : color("bold")  . "\e[38;2;249;246;242m" . "\e[48;2;60;58;50m";
 	}
-	if (0) {
+	if ($self->colors == 1) {
         return
-		!defined $value    ? color("reset") . "\e[38;5;249m" . "\e[48;5;251m"
-		: $value < 4       ? color("reset") . "\e[38;5;243m" . "\e[48;5;231m"
-		: $value < 8       ? color("reset") . "\e[38;5;243m" . "\e[48;5;230m"
-		: $value < 16      ? color("reset") . "\e[38;5;231m" . "\e[48;5;215m"
-		: $value < 32      ? color("reset") . "\e[38;5;231m" . "\e[48;5;209m"
-		: $value < 64      ? color("reset") . "\e[38;5;231m" . "\e[48;5;203m"
-		: $value < 128     ? color("reset") . "\e[38;5;231m" . "\e[48;5;196m"
-		: $value < 256     ? color("bold")  . "\e[38;5;231m" . "\e[48;5;227m"
-		: $value < 512     ? color("bold")  . "\e[38;5;231m" . "\e[48;5;227m"
-		: $value < 1024    ? color("bold")  . "\e[38;5;231m" . "\e[48;5;226m"
-		: $value < 2048    ? color("bold")  . "\e[38;5;231m" . "\e[48;5;226m"
-		: $value < 4096    ? color("bold")  . "\e[38;5;231m" . "\e[48;5;220m"
-		                   : color("bold")  . "\e[38;5;231m" . "\e[48;5;237m";
+		!defined $value ? color("reset") . "\e[38;5;249m" . "\e[48;5;251m"
+		: $value < 4    ? color("reset") . "\e[38;5;243m" . "\e[48;5;231m"
+		: $value < 8    ? color("reset") . "\e[38;5;243m" . "\e[48;5;230m"
+		: $value < 16   ? color("reset") . "\e[38;5;231m" . "\e[48;5;215m"
+		: $value < 32   ? color("reset") . "\e[38;5;231m" . "\e[48;5;209m"
+		: $value < 64   ? color("reset") . "\e[38;5;231m" . "\e[48;5;203m"
+		: $value < 128  ? color("reset") . "\e[38;5;231m" . "\e[48;5;196m"
+		: $value < 256  ? color("bold")  . "\e[38;5;231m" . "\e[48;5;227m"
+		: $value < 512  ? color("bold")  . "\e[38;5;231m" . "\e[48;5;227m"
+		: $value < 1024 ? color("bold")  . "\e[38;5;231m" . "\e[48;5;226m"
+		: $value < 2048 ? color("bold")  . "\e[38;5;231m" . "\e[48;5;226m"
+		: $value < 4096 ? color("bold")  . "\e[38;5;231m" . "\e[48;5;220m"
+		                : color("bold")  . "\e[38;5;231m" . "\e[48;5;237m";
 	}
 	my $bright = $^O eq "MSWin32" ? "underline " : "bright_";
 	my $bold   = $^O eq "MSWin32" ? "underline"  : "bold";
 	return color (
-		!defined $value    ? "reset"
-		: $value < 4       ? "reset reverse cyan"
-		: $value < 8       ? "reset reverse ${bright}blue"
-		: $value < 16      ? "reset reverse blue"
-		: $value < 32      ? "reset reverse green"
-		: $value < 64      ? "reset reverse magenta"
-		: $value < 128     ? "reset reverse red"
-		: $value < 4096    ? "reset reverse yellow"
-		                   : "reset reverse $bold"
+		!defined $value ? "reset"
+		: $value < 4    ? "reset reverse cyan"
+		: $value < 8    ? "reset reverse ${bright}blue"
+		: $value < 16   ? "reset reverse blue"
+		: $value < 32   ? "reset reverse green"
+		: $value < 64   ? "reset reverse magenta"
+		: $value < 128  ? "reset reverse red"
+		: $value < 4096 ? "reset reverse yellow"
+		                : "reset reverse $bold"
 	);
 }
 
 sub border_color {
-	if ($ENV{KONSOLE_DBUS_SERVICE}) {
-		return color("reset") . "\e[38;2;204;192;179m" . "\e[48;2;187;173;160m";
-	}
-	if (0) {
-		return color("reset") . "\e[38;5;251m" . "\e[48;5;249m";
-	}
-	return color("reset reverse");
+	my $self = shift;
+	$self->tile_color(undef) . color("reverse");
 }
 
 sub board_width {
@@ -307,14 +319,13 @@ sub draw_welcome {
 How to play: Use your arrow keys to move the tiles. When two tiles with the same number touch, they merge into one!
 Quit: Q
 New Game: R
-
 MESSAGE
 
 	$message = wrap "", "", $message;
 
 	$message =~ s/(^2048|How to play:|arrow keys|merge into one!|Quit:|New Game:)/colored $1, "bold"/ge;
 
-	say $message;
+	print $message;
 }
 
 sub hide_cursor {
@@ -326,5 +337,75 @@ sub show_cursor {
 	my $self = shift;
 	print "\e[?25h";
 }
+
+around no_animations => sub {
+	my $orig = shift;
+	my $self = shift;
+
+	my $no_anim = $self->$orig(@_);
+
+	if (@_) {
+		$self->reset_animations if $self->no_animations;
+	}
+	else {
+		$no_anim = 1 if $self->cell_height <= 1 or $self->cell_width <= 1;
+	}
+
+	$no_anim;
+};
+
+sub _coerce_zoom {
+	my ($zoom) = @_;
+	$zoom = $#zooms if $zoom > $#zooms;
+	$zoom = 0 if $zoom < 0;
+	$zoom;
+}
+
+sub _trigger_zoom {
+	my ($self, $zoom, $old) = @_;
+	$self->zoom($zoom, undef); # hack because we have no old value FUUUUUU
+}
+
+around zoom => sub {
+	my $orig = shift;
+	my $self = shift;
+
+	return $self->$orig if !@_;
+
+	my $old = $self->$orig;
+	my $zoom = @_ == 1 ? $self->$orig(@_) : $old;
+
+	$self->cell_width($zooms[$zoom][0]);
+	$self->cell_height($zooms[$zoom][1]);
+	$self->draw if defined $old and $zoom != $old;
+
+	$zoom;
+};
+
+sub _build_colors {
+	return 2 if $ENV{KONSOLE_DBUS_SERVICE};
+	return 1 if 0;
+	return 0;
+}
+
+sub _coerce_colors {
+	my ($colors) = @_;
+	$colors //= 0;
+	$colors = 0 if $colors > 2 or $colors < 0;
+	$colors;
+}
+
+around colors => sub {
+	my $orig = shift;
+	my $self = shift;
+
+	my $colors = $self->$orig(@_);
+
+	if (@_) {
+		$self->needs_redraw(1);
+	}
+
+	$colors;
+};
 
 1;
