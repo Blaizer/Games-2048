@@ -373,8 +373,7 @@ around zoom => sub {
 	return $self->$orig if !@_;
 
 	my $old = $self->$orig;
-	my $zoom = $old;
-	$zoom = $self->$orig(@_) if @_ == 1;
+	my $zoom = @_ == 1 ? $self->$orig(@_) : $old;
 
 	$self->cell_width($zooms[$zoom][0]);
 	$self->cell_height($zooms[$zoom][1]);
