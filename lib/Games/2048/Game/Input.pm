@@ -37,7 +37,19 @@ sub handle_input_key_quit_restart {
 sub handle_input_key_option {
 	my ($self, $app, $key) = @_;
 	if ($key =~ /^[a]$/i) {
-		$app->no_animations(!$app->no_animations);
+		$self->no_animations(!$self->no_animations);
+		1;
+	}
+	elsif ($key =~ /^[-_]$/) {
+		$self->zoom($self->zoom - 1);
+		1;
+	}
+	elsif ($key =~ /^[=+]$/) {
+		$self->zoom($self->zoom + 1);
+		1;
+	}
+	elsif ($key =~ /^[c]$/i) {
+		$self->colors($self->colors + 1);
 		1;
 	}
 }

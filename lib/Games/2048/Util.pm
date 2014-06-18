@@ -92,4 +92,10 @@ sub window_size_is_automatic {
 	$_window_size_is_automatic;
 }
 
+sub maybe {
+	if    (@_ == 2) { return @_ if defined $_[1] }
+	elsif (@_ == 1) { return @_ if defined $_[0] }
+	return;
+}
+
 1;
