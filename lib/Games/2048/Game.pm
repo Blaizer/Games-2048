@@ -93,7 +93,7 @@ sub move {
 
 	my $move_score = $self->move_tiles($vec);
 
-	if (defined $move_score) {
+	if ($move_score) {
 		$self->insert_random_tile for 1..$self->insert_tiles_on_move;
 
 		$self->score($self->score + $move_score);
