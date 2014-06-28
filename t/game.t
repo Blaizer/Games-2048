@@ -60,8 +60,8 @@ $small_game->insert_random_tile for 1..10;
 tiles_are $small_game, $small_game_copy, "small_game insert random tile does nothing when full";
 
 {
-	my $game1 = Games::2048::Game->new;
-	my $game2 = Games::2048::Game->new;
+	my $game1 = Games::2048::Game->new(insert_tiles_on_start => 7);
+	my $game2 = Games::2048::Game->new(insert_tiles_on_start => 7);
 
 	for ($game1, $game2) {
 		srand 0;
