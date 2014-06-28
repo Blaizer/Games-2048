@@ -50,6 +50,8 @@ sub insert_tile {
 		first_value => -1 / max($self->cell_width, $self->cell_height),
 		last_value => 1,
 	));
+	
+	$tile;
 }
 
 sub move_tiles {
