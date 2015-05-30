@@ -1,7 +1,13 @@
 Revision history for Games-2048
 
+0.10 Sun 31 May 2015
+	- Add button to toggle animations on/off
+	- Add buttons to zoom the board in and out
+	- Add colors for 256-color terminals
+	- Abstract input system to allow for AI or replay input
+
 0.08 Thu 22 May 2014
-	- Seventh test release
+	- Fix memory leak
 
 0.07 Wed 09 Apr 2014
 	- Sixth test release

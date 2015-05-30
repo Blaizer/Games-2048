@@ -3,7 +3,6 @@ use 5.012;
 use Moo;
 
 use POSIX qw/floor ceil/;
-use Carp qw/croak/;
 
 has cur_frame   => is => 'rw', default => 0;
 has duration    => is => 'rw', default => 0;

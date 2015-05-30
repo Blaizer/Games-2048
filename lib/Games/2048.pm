@@ -21,12 +21,6 @@ Once installed, run the game with the command:
 
 =item * Add slide and merge animations
 
-=item * Add button to toggle animations on/off
-
-=item * Add buttons to zoom the board in and out
-
-=item * Add colors for 256-color terminals
-
 =item * Test on more systems and terminals
 
 =back
@@ -37,7 +31,7 @@ Blaise Roth <blaizer@cpan.org>
 
 =head1 LICENSE AND COPYRIGHT
 
-This software is Copyright (C) 2014 by Blaise Roth.
+This software is Copyright (C) 2015 by Blaise Roth.
 
 This is free software; you can redistribute and/or modify it under
 the same terms as the Perl 5 programming language system itself.
@@ -52,7 +46,7 @@ use Moo;
 use mro; # enable next::method globally
 use Scalar::Util qw/blessed/;
 
-our $VERSION = '0.08';
+our $VERSION = '0.10';
 
 use constant FRAME_TIME => 1/15;
 
@@ -103,7 +97,7 @@ sub run {
 			$self->game->draw(1);
 
 			if ($self->quit or $self->restart
-				or $self->game->lose || $self->game->win and !$self->game->needs_redraw
+				or $self->game->lose || $self->game->win && !$self->game->needs_redraw
 			) {
 				last;
 			}
@@ -115,16 +109,9 @@ sub run {
 		$self->save_game if $self->game->lose and !$self->no_save_game;
 
 		unless ($self->quit or $self->restart) {
-			print $self->game->win ? "Keep going?" : "Try again?", " (Y/n) ";
-			STDOUT->flush;
+			$self->game->draw_win_question;
 			$self->game->handle_finish($self);
-
-			if ($self->quit) {
-				say "n";
-			}
-			else {
-				say "y";
-			}
+			$self->game->draw_win_answer(!$self->quit);
 		}
 	}
 

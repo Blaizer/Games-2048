@@ -23,12 +23,13 @@ has appearing     => is => 'rw';
 has moving        => is => 'rw';
 has moving_vec    => is => 'rw';
 
-has border_width  => is => 'rw', default => 2;
-has border_height => is => 'rw', default => 1;
-has cell_width    => is => 'rw', default => 7;
-has cell_height   => is => 'rw', default => 3;
-has score_width   => is => 'rw', default => 7;
-has score_height  => is => 'rw', default => 1;
+has border_width   => is => 'rw', default => 2;
+has border_height  => is => 'rw', default => 1;
+has cell_width     => is => 'rw', default => 7;
+has cell_height    => is => 'rw', default => 3;
+has score_width    => is => 'rw', default => 7;
+has score_height   => is => 'rw', default => 1;
+has options_height => is => 'rw', default => 5;
 
 my @zooms = (
 	[ 3, 1 ],
@@ -50,7 +51,7 @@ sub insert_tile {
 		first_value => -1 / max($self->cell_width, $self->cell_height),
 		last_value => 1,
 	));
-	
+
 	$tile;
 }
 
@@ -102,7 +103,7 @@ sub draw {
 
 	say "" if !$redraw;
 
-	$self->draw_score;
+	$self->draw_hud;
 	$self->draw_border_horizontal;
 
 	# set if anything is *actually* moving or appearing
@@ -210,8 +211,48 @@ sub draw_win {
 	say " " x $offset, colored(uc $message, "bold"), "\n";
 }
 
+sub draw_win_question {
+	my $self = shift;
+	print $self->win ? "Keep going?" : "Try again?", " (Y/n) ";
+	STDOUT->flush;
+}
+
+sub draw_win_answer {
+	my ($self, $yes) = @_;
+	say $yes ? "y" : "n";
+}
+
+sub draw_hud {
+	my $self = shift;
+
+	$self->draw_options;
+	$self->draw_score;
+}
+
+sub draw_options {
+	my $self = shift;
+
+	$self->draw_option("( Q ) Quit        " . "( R ) New Game");
+	$self->draw_option("( A ) Animations  " . bold_if("On", !$self->no_animations)."/".bold_if("Off", $self->no_animations));
+	$self->draw_option("( C ) Colors      " . bold_if("16", $self->colors == 0)."/".bold_if("256", $self->colors == 1)."/".bold_if("24-bit", $self->colors == 2));
+	$self->draw_option("(+/-) Zoom        " . colored(floor(($self->cell_height + 1) / 4 * 100)."%", "bold"));
+
+	say "";
+}
+
+sub bold_if {
+	my ($string, $condition) = @_;
+	$condition ? colored($string, "bold") : $string;
+}
+
+sub draw_option {
+	my ($self, $line) = @_;
+	$line =~ s/(\(.*?\))/colored($1, "bold")/ge;
+	say $line;
+}
+
 sub draw_score {
-	my ($self) = @_;
+	my $self = shift;
 
 	my $score = "Score:";
 	my $best_score = "Best:";
@@ -295,7 +336,12 @@ sub board_width {
 
 sub board_height {
 	my $self = shift;
-	return $self->size * $self->cell_height + $self->border_height * 2 + $self->score_height;
+	return $self->size * $self->cell_height + $self->border_height * 2 + $self->hud_height;
+}
+
+sub hud_height {
+	my $self = shift;
+	return $self->score_height + $self->options_height;
 }
 
 sub draw_border_horizontal {
@@ -313,21 +359,24 @@ sub restore_cursor {
 }
 
 sub draw_welcome {
-	local $Text::Wrap::columns = Games::2048::Util::window_size;
+	my $logo = colored(<<'LOGO', "bold");
+__  _     _
+ _)/ \|_|(_)
+/__\_/  |(_)
+LOGO
 
-	my $message = <<MESSAGE;
-2048 - Join the numbers and get to the 2048 tile!
+	my $message = <<'MESSAGE';
 
-How to play: Use your arrow keys to move the tiles. When two tiles with the same number touch, they merge into one!
-Quit: Q
-New Game: R
+Join the numbers and get to the 2048 tile!
+
+HOW TO PLAY: Use your arrow keys to move the tiles. When two tiles with the same number touch, they merge into one!
 MESSAGE
 
+	local $Text::Wrap::columns = Games::2048::Util::window_size;
 	$message = wrap "", "", $message;
+	$message =~ s/(2048\s+tile!|HOW\s+TO\s+PLAY:|arrow\s+keys|merge\s+into\s+one!)/colored $1, "bold"/ge;
 
-	$message =~ s/(^2048|How to play:|arrow keys|merge into one!|Quit:|New Game:)/colored $1, "bold"/ge;
-
-	print $message;
+	print $logo, $message;
 }
 
 sub hide_cursor {
@@ -348,6 +397,7 @@ around no_animations => sub {
 
 	if (@_) {
 		$self->reset_animations if $self->no_animations;
+		$self->needs_redraw(1);
 	}
 	else {
 		$no_anim = 1 if $self->cell_height <= 1 or $self->cell_width <= 1;
@@ -393,7 +443,8 @@ sub _build_colors {
 sub _coerce_colors {
 	my ($colors) = @_;
 	$colors //= 0;
-	$colors = 0 if $colors > 2 or $colors < 0;
+	$colors = 0 if $colors > 2;
+	$colors = 2 if $colors < 0;
 	$colors;
 }
 
