@@ -13,14 +13,8 @@ resources (
 	# homepage   => 'http://yourwebsitehere.com',
 	# IRC        => 'irc://irc.perl.org/#Games-2048',
 	license    => 'http://dev.perl.org/licenses/',
-	repository => {
-		type => 'git',
-		url => 'git://github.com/Blaizer/Games-2048.git',
-		web => 'https://github.com/Blaizer/Games-2048',
-	},
-	bugtracker => {
-		url => 'https://github.com/Blaizer/Games-2048/issues',
-	},
+	repository => 'https://github.com/Blaizer/Games-2048',
+	bugtracker => 'https://github.com/Blaizer/Games-2048/issues',
 );
 
 configure_requires (
